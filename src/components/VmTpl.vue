@@ -144,32 +144,48 @@ body {
     },
 
     remove(uuid) {
-      if(confirm("确定要删除吗？")){
-        let data = [{"uuid": uuid}]
-      let self = this
-      axios
-        .post(self.GLOBAL.MaxCloudUrl+'/vm_tpl/remove', data)
-        .then(function (res){
-          var data = res.data;
-          if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
-            $.each(self.tableData, function(index, tpl_data){
-              if (tpl_data &&tpl_data["uuid"] == uuid){
-                self.tableData.splice(index, 1)
-                return true
+      this.$confirm("此操作将永久删除该实例, 是否继续?", "提示", {
+        confirmButtonText: "确定",
+        cancelButtonText: "取消",
+        type: "warning"
+      })
+        .then(() => {
+          let data = [{ uuid: uuid }];
+          let self = this;
+          axios
+            .post(self.GLOBAL.MaxCloudUrl + "/vm_tpl/remove", data)
+            .then(function(res) {
+              var data = res.data;
+              if (
+                data.RespHead.ErrorCode == 0 &&
+                data.RespHead.Message == "SUCCESS"
+              ) {
+                $.each(self.tableData, function(index, tpl_data) {
+                  if (tpl_data && tpl_data["uuid"] == uuid) {
+                    self.tableData.splice(index, 1);
+                    return true;
+                  }
+                });
+                self.query_task(data.RespBody.Result.task_id);
+              } else {
+                self.$message({
+                  message: data.RespHead.Message,
+                  type: "warning"
+                });
               }
+            })
+            .catch(function(error) {
+              // 请求失败处理
+              console.log(error)
+              self.$message.error("系统错误");
             });
-            self.query_task(data.RespBody.Result.task_id)
-          }else{
-            self.$message({
-              message: data.RespHead.Message,
-              type: 'warning'
-            });
-          }
         })
-        .catch(function (error) { // 请求失败处理
-          self.$message.error(error);
+        .catch(() => {
+          this.$message({
+            type: "info",
+            message: "已取消删除"
+          });
         });
-      }
     },
 
     clone() {
