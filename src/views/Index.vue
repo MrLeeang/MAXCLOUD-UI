@@ -48,16 +48,16 @@
         场景
       </div>
       <div v-else-if="activeIndex === '8-1'">
-        添加节点
+        <AddNode></AddNode>
       </div>
       <div v-else-if="activeIndex === '8-2'">
-        创建虚拟机
+        <AddVm></AddVm>
       </div>
       <div v-else-if="activeIndex === '8-3'">
-        添加网络
+        <AddNetwork></AddNetwork>
       </div>
       <div v-else-if="activeIndex === '8-4'">
-        添加防火墙
+        <AddFirewall></AddFirewall>
       </div>
       <div v-else>
         非 A/B/C
@@ -74,6 +74,10 @@ import Firewall from "../components/Firewall"
 import Node from "../components/Node"
 import IsoPool from "../components/IsoPool"
 import Network from "../components/Network"
+import AddFirewall from "../components/AddFirewall"
+import AddNetwork from "../components/AddNetwork"
+import AddNode from "../components/AddNode"
+import AddVm from "../components/AddVm"
 export default {
   data () {
     return {
@@ -87,7 +91,11 @@ export default {
     Firewall,
     Node,
     IsoPool,
-    Network
+    Network,
+    AddFirewall,
+    AddNode,
+    AddVm,
+    AddNetwork
   },
   created() {
     document.title="index";
