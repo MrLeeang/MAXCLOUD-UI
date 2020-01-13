@@ -48,7 +48,7 @@
       <template slot-scope="scope">
         <el-button
           size="mini"
-          @click="handleEdit(scope.$index, scope.row)"
+          @click="handleEdit(scope.row)"
           icon="el-icon-edit"></el-button>
         <el-button
           size="mini"
@@ -114,7 +114,7 @@
         });
     },
 
-    remove(vm_uuid, vlan_id) {
+    remove(uuid, vlan_id) {
       if(confirm("确定要删除吗？")){
         let data = [{"uuid": vm_uuid}]
       if (vlan_id == 0){
@@ -128,7 +128,7 @@
           var data = res.data;
           if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
             $.each(self.tableData, function(index, vm_data){
-              if (vm_data["uuid"] == vm_uuid){
+              if (vm_data["uuid"] == uuid){
                 self.tableData.splice(index, 1)
               }
             });
@@ -141,6 +141,10 @@
           alert(error);
         });
       }
+    },
+
+    handleEdit(data){
+      alert("暂不支持编辑")
     }
   },
   }

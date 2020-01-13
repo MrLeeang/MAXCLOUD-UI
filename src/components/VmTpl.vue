@@ -66,11 +66,16 @@
       <template slot-scope="scope">
         <el-button
           size="mini"
-          @click="handleEdit(scope.$index, scope.row)">编辑</el-button>
+          @click="handleEdit(scope.row)">编辑</el-button>
         <el-button
           size="mini"
           type="danger"
           @click="remove(scope.row.uuid)">删除</el-button>
+        <el-button
+          size="mini"
+          type="info"
+          icon="el-icon-document-copy"
+          @click="clone(scope.row.uuid)">克隆</el-button>
       </template>
     </el-table-column>
   </el-table>
@@ -152,6 +157,14 @@
           console.log(error);
         });
       }
+    },
+
+    clone(tpl_uuid){
+      alert("功能正在开发中")
+    },
+
+    handleEdit(data){
+      alert("功能正在开发中")
     }
   },
   }

@@ -119,7 +119,7 @@
       <template slot-scope="scope">
         <el-button
           size="mini"
-          @click="handleEdit(scope.$index, scope.row)"
+          @click="handleEdit(scope.row)"
           icon="el-icon-edit"></el-button>
         <el-button
           size="mini"
@@ -208,6 +208,10 @@
           alert(error);
         });
       }
+    },
+    
+    handleEdit(data){
+      alert("功能正在开发中")
     }
   },
   }
