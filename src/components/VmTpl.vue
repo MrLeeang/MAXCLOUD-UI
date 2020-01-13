@@ -1,145 +1,167 @@
 <template>
-  <el-table
-    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-    v-loading="loading"
-    style="width: 100%">
-    <el-table-column type="expand">
-      <template slot-scope="props">
-        <el-form label-position="left" inline class="demo-table-expand">
-          <el-form-item label="id">
-            <span>{{ props.row.id }}</span>
-          </el-form-item>
-          <el-form-item label="uuid">
-            <span>{{ props.row.uuid }}</span>
-          </el-form-item>
-          <el-form-item label="模板名称">
-            <span>{{ props.row.name }}</span>
-          </el-form-item>
-          <el-form-item label="系统">
-            <span>{{ props.row.os }}</span>
-          </el-form-item>
-          <el-form-item label="类型">
-            <span>{{ props.row.type }}</span>
-          </el-form-item>
-          <el-form-item label="login_user">
-            <span>{{ props.row.login_user }}</span>
-          </el-form-item>
-          <el-form-item label="login_pass">
-            <span>{{ props.row.login_pass }}</span>
-          </el-form-item>
-          <el-form-item label="node_uuid">
-            <span>{{ props.row.node_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="organization_uuid">
-            <span>{{ props.row.organization_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="storage_pool_uuid">
-            <span>{{ props.row.storage_pool_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="描述">
-            <span>{{ props.row.desc }}</span>
-          </el-form-item>
-        </el-form>
-      </template>
-    </el-table-column>
-    <el-table-column
-      label="模板名称"
-      prop="name"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="系统"
-      prop="os"
-      sortable>
-    </el-table-column>
-   <el-table-column
-      label="类型"
-      prop="type"
-      sortable>
-    </el-table-column>
-    <el-table-column align="right">
-      <template slot="header">
-        <el-input
-          v-model="search"
-          size="mini"
-          placeholder="输入关键字搜索"/>
-      </template>
-      <template slot-scope="scope">
-        <el-button
-          size="mini"
-          @click="handleEdit(scope.row)">编辑</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="remove(scope.row.uuid)">删除</el-button>
-        <el-button
-          size="mini"
-          type="info"
-          icon="el-icon-document-copy"
-          @click="clone(scope.row.uuid)">克隆</el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div>
+    <el-table
+      :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+      v-loading="loading"
+      style="width: 100%"
+    >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="id">
+              <span>{{ props.row.id }}</span>
+            </el-form-item>
+            <el-form-item label="uuid">
+              <span>{{ props.row.uuid }}</span>
+            </el-form-item>
+            <el-form-item label="模板名称">
+              <span>{{ props.row.name }}</span>
+            </el-form-item>
+            <el-form-item label="系统">
+              <span>{{ props.row.os }}</span>
+            </el-form-item>
+            <el-form-item label="类型">
+              <span>{{ props.row.type }}</span>
+            </el-form-item>
+            <el-form-item label="login_user">
+              <span>{{ props.row.login_user }}</span>
+            </el-form-item>
+            <el-form-item label="login_pass">
+              <span>{{ props.row.login_pass }}</span>
+            </el-form-item>
+            <el-form-item label="node_uuid">
+              <span>{{ props.row.node_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="organization_uuid">
+              <span>{{ props.row.organization_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="storage_pool_uuid">
+              <span>{{ props.row.storage_pool_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="描述">
+              <span>{{ props.row.desc }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column label="模板名称" prop="name" sortable></el-table-column>
+      <el-table-column label="系统" prop="os" sortable></el-table-column>
+      <el-table-column label="类型" prop="type" sortable></el-table-column>
+      <el-table-column align="right">
+        <template slot="header">
+          <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+        </template>
+        <template slot-scope="scope">
+          <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
+          <el-button
+            size="mini"
+            type="info"
+            icon="el-icon-document-copy"
+            @click="clone(scope.row.uuid)"
+          >克隆</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
+
+    <el-dialog title="收货地址" :visible.sync="dialogFormVisible">
+      <el-form :model="form">
+        <el-form-item label="活动名称" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="活动区域" :label-width="formLabelWidth">
+          <el-select v-model="form.region" placeholder="请选择活动区域">
+            <el-option label="区域一" value="shanghai"></el-option>
+            <el-option label="区域二" value="beijing"></el-option>
+          </el-select>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="btn_clone">确 定</el-button>
+      </div>
+    </el-dialog>
+  </div>
 </template>
 
 <style>
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 135px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
-  }
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 135px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
 body {
-    margin: 0;
-  }
+  margin: 0;
+}
 </style>
 
 <script>
-  export default {
-    data() {
-      return {
-        tableData: [],
-        search: '',
-        loading: true
-      }
-    },
-    mounted () {
-    let self = this
-    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl
+export default {
+  data() {
+    return {
+      tableData: [],
+      search: "",
+      loading: true,
+      dialogFormVisible: false,
+      form: {
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
+        delivery: false,
+        type: [],
+        resource: "",
+        desc: ""
+      },
+      formLabelWidth: "120px"
+    };
+  },
+  mounted() {
+    let self = this;
+    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
     axios
-      .get(self.GLOBAL.MaxCloudUrl+'/vm_tpl/list')
-      .then(function (res){
-          if (res.data.RespHead.ErrorCode==1004){
-            self.$router.push({path: "/login"})
-          }else{
-            self.tableData = res.data.RespBody.Result
-            self.loading = false
-          }
+      .get(self.GLOBAL.MaxCloudUrl + "/vm_tpl/list")
+      .then(function(res) {
+        if (res.data.RespHead.ErrorCode == 1004) {
+          self.$router.push({ path: "/login" });
+        } else {
+          self.tableData = res.data.RespBody.Result;
+          self.loading = false;
+        }
       })
-      .catch(function (error) { // 请求失败处理
+      .catch(function(error) {
+        // 请求失败处理
         console.log(error);
       });
   },
-   methods:{
+  methods: {
     query_task(uuid) {
-      let self = this
-      axios.get(self.GLOBAL.MaxCloudUrl+'/task?uuid='+uuid).then(function (res){
-        if (res.data.RespBody.Result.status != 'PENDING' && res.data.RespBody.Result.status !="DEFAULT"){
-          self.$message({
+      let self = this;
+      axios
+        .get(self.GLOBAL.MaxCloudUrl + "/task?uuid=" + uuid)
+        .then(function(res) {
+          if (
+            res.data.RespBody.Result.status != "PENDING" &&
+            res.data.RespBody.Result.status != "DEFAULT"
+          ) {
+            self.$message({
               message: res.data.RespBody.Result.message,
-              type: 'success'
+              type: "success"
             });
-        }else{
-          self.query_task(uuid)
-        }
-        }).catch(function (error) { // 请求失败处理
-          self.$.message.error(error)
+          } else {
+            self.query_task(uuid);
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          self.$.message.error(error);
         });
     },
 
@@ -176,7 +198,7 @@ body {
             })
             .catch(function(error) {
               // 请求失败处理
-              console.log(error)
+              console.log(error);
               self.$message.error("系统错误");
             });
         })
@@ -188,28 +210,19 @@ body {
         });
     },
 
-    clone() {
-      this.$prompt('请输入邮箱', '克隆虚拟机', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        inputPattern: /[\w!#$%&'*+/=?^_`{|}~-]+(?:\.[\w!#$%&'*+/=?^_`{|}~-]+)*@(?:[\w](?:[\w-]*[\w])?\.)+[\w](?:[\w-]*[\w])?/,
-        inputErrorMessage: '邮箱格式不正确'
-      }).then(({ value }) => {
-        this.$message({
-          type: 'success',
-          message: '你的邮箱是: ' + value
-        });
-      }).catch(() => {
-        this.$message({
-          type: 'info',
-          message: '取消任务'
-        });       
-      });
+    clone(uuid) {
+      this.dialogFormVisible = true
+      this.form.tpl_uuid = uuid
     },
 
-    handleEdit(data){
-      alert("功能正在开发中")
+    btn_clone(){
+      this.dialogFormVisible = false
+      console.log(this.form.name)
+    },
+
+    handleEdit(data) {
+      alert("功能正在开发中");
     }
-  },
   }
+};
 </script>

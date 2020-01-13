@@ -2,7 +2,8 @@
   <el-table
     :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
     v-loading="loading"
-    style="width: 100%">
+    style="width: 100%"
+  >
     <el-table-column type="expand">
       <template slot-scope="props">
         <el-form label-position="left" inline class="demo-table-expand">
@@ -27,101 +28,85 @@
         </el-form>
       </template>
     </el-table-column>
-    <el-table-column
-      label="节点名称"
-      prop="agent"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="主机"
-      prop="host"
-      sortable>
-    </el-table-column>
-   <el-table-column
-      label="管理ip"
-      prop="manage_ip"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="状态"
-      prop="is_working"
-      sortable>
-    </el-table-column>
+    <el-table-column label="节点名称" prop="agent" sortable></el-table-column>
+    <el-table-column label="主机" prop="host" sortable></el-table-column>
+    <el-table-column label="管理ip" prop="manage_ip" sortable></el-table-column>
+    <el-table-column label="状态" prop="is_working" sortable></el-table-column>
     <el-table-column align="right">
       <template slot="header">
-        <el-input
-          v-model="search"
-          size="mini"
-          placeholder="输入关键字搜索"/>
+        <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </template>
       <template slot-scope="scope">
-        <el-button
-          size="mini"
-          @click="handleEdit(scope.row)">编辑</el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="remove(scope.row.uuid)">删除</el-button>
+        <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+        <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
       </template>
     </el-table-column>
   </el-table>
 </template>
 
 <style>
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 135px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
-  }
+.demo-table-expand {
+  font-size: 0;
+}
+.demo-table-expand label {
+  width: 135px;
+  color: #99a9bf;
+}
+.demo-table-expand .el-form-item {
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 50%;
+}
 </style>
 
 <script>
-  export default {
-    data() {
-      return {
-        tableData: [],
-        search: '',
-        loading: true
-      }
-    },
-    mounted () {
-    let self = this
-    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl
+export default {
+  data() {
+    return {
+      tableData: [],
+      search: "",
+      loading: true
+    };
+  },
+  mounted() {
+    let self = this;
+    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
     axios
-      .get(self.GLOBAL.MaxCloudUrl+'/node/list')
-      .then(function (res){
-          if (res.data.RespHead.ErrorCode==1004){
-            self.$router.push({path: "/login"})
-          }else{
-            self.tableData = res.data.RespBody.Result
-            self.loading = false
-          }
+      .get(self.GLOBAL.MaxCloudUrl + "/node/list")
+      .then(function(res) {
+        if (res.data.RespHead.ErrorCode == 1004) {
+          self.$router.push({ path: "/login" });
+        } else {
+          self.tableData = res.data.RespBody.Result;
+          self.loading = false;
+        }
       })
-      .catch(function (error) { // 请求失败处理
+      .catch(function(error) {
+        // 请求失败处理
         console.log(error);
       });
   },
-   methods:{
+  methods: {
     query_task(uuid) {
-      let self = this
-      axios.get(self.GLOBAL.MaxCloudUrl+'/task?uuid='+uuid).then(function (res){
-        if (res.data.RespBody.Result.status != 'PENDING' && res.data.RespBody.Result.status !="DEFAULT"){
-          self.$message({
-            message: res.data.RespBody.Result.message,
-            type: 'success'
+      let self = this;
+      axios
+        .get(self.GLOBAL.MaxCloudUrl + "/task?uuid=" + uuid)
+        .then(function(res) {
+          if (
+            res.data.RespBody.Result.status != "PENDING" &&
+            res.data.RespBody.Result.status != "DEFAULT"
+          ) {
+            self.$message({
+              message: res.data.RespBody.Result.message,
+              type: "success"
             });
-        }else{
-          self.query_task(uuid)
-        }
-        }).catch(function (error) { // 请求失败处理
-          self.$message.error(error)
+          } else {
+            self.query_task(uuid);
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          self.$message.error(error);
         });
     },
 
@@ -158,7 +143,7 @@
             })
             .catch(function(error) {
               // 请求失败处理
-              console.log(error)
+              console.log(error);
               self.$message.error("系统错误");
             });
         })
@@ -170,9 +155,9 @@
         });
     },
 
-    handleEdit(data){
-      alert("功能正在开发中")
+    handleEdit(data) {
+      alert("功能正在开发中");
     }
-  },
   }
+};
 </script>
