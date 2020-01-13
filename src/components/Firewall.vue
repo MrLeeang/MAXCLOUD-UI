@@ -1,6 +1,7 @@
 <template>
   <el-table
     :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    v-loading="loading"
     style="width: 100%"
      row-key="uuid"
     :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -60,7 +61,7 @@
         <el-button
           size="mini"
           type="danger"
-          @click="remove_vm(scope.row)"
+          @click="remove(scope.row)"
           icon="el-icon-delete"></el-button>
       </template>
     </el-table-column>
@@ -87,7 +88,8 @@
     data() {
       return {
         tableData: [],
-        search: ''
+        search: '',
+        loading: true
       }
     },
     mounted () {
@@ -113,6 +115,7 @@
             firewall_data['name']=''
             self.tableData.push(firewall_data)
             });
+            self.loading = false
           }
           console.log(self.tableData)
       })
@@ -125,37 +128,44 @@
       let self = this
       axios.get(self.GLOBAL.MaxCloudUrl+'/task?uuid='+uuid).then(function (res){
         if (res.data.RespBody.Result.status != 'PENDING' && res.data.RespBody.Result.status !="DEFAULT"){
-          alert(res.data.RespBody.Result.message);
+          self.$message({
+            message: res.data.RespBody.Result.message,
+            type: 'success'
+            });
         }else{
           self.query_task(uuid)
         }
         }).catch(function (error) { // 请求失败处理
-          alert(error);
+          self.$message.error(error)
         });
     },
 
-    remove_vm(vm_uuid) {
+    remove(data) {
       if(confirm("确定要删除吗？")){
-        let data = [{"uuid": vm_uuid}]
-      let self = this
-      axios
-        .post(self.GLOBAL.MaxCloudUrl+'/vm/remove', data)
-        .then(function (res){
-          var data = res.data;
-          if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
-            $.each(self.tableData, function(index, vm_data){
-              if (vm_data["uuid"] == vm_uuid){
-                self.tableData.splice(index, 1)
-              }
-            });
-            self.query_task(data.RespBody.Result.task_id)
-          }else{
-            alert(data.RespHead.Message);
-          }
-        })
-        .catch(function (error) { // 请求失败处理
-          alert(error);
-        });
+        // 先判断是删除防火墙还是防火墙接口
+      //   let data = [{"uuid": vm_uuid}]
+      // let self = this
+      // axios
+      //   .post(self.GLOBAL.MaxCloudUrl+'/vm/remove', data)
+      //   .then(function (res){
+      //     var data = res.data;
+      //     if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
+      //       $.each(self.tableData, function(index, firewall_data){
+      //         if (firewall_data && firewall_data["uuid"] == vm_uuid){
+      //           self.tableData.splice(index, 1)
+      //         }
+      //       });
+      //       self.query_task(data.RespBody.Result.task_id)
+      //     }else{
+      //       self.$message({
+      //         message: data.RespHead.Message,
+      //         type: 'warning'
+      //       });
+      //     }
+      //   })
+      //   .catch(function (error) { // 请求失败处理
+      //     self.$message.error(error);
+      //   });
       }
     },
     

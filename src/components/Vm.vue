@@ -1,6 +1,7 @@
 <template>
   <el-table
     :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+    v-loading="loading"
     style="width: 100%">
     <el-table-column type="expand">
       <template slot-scope="props">
@@ -152,7 +153,8 @@
     data() {
       return {
         tableData: [],
-        search: ''
+        search: '',
+        loading: true
       }
     },
     mounted () {
@@ -165,6 +167,7 @@
             self.$router.push({path: "/login"})
           }else{
             self.tableData = res.data.RespBody.Result
+            self.loading = false
           }
       })
       .catch(function (error) { // 请求失败处理
@@ -172,16 +175,20 @@
       });
   },
    methods:{
+
     query_task(uuid) {
       let self = this
       axios.get(self.GLOBAL.MaxCloudUrl+'/task?uuid='+uuid).then(function (res){
         if (res.data.RespBody.Result.status != 'PENDING' && res.data.RespBody.Result.status !="DEFAULT"){
-          alert(res.data.RespBody.Result.message);
+          self.$message({
+            message: res.data.RespBody.Result.message,
+            type: 'success'
+            });
         }else{
           self.query_task(uuid)
         }
         }).catch(function (error) { // 请求失败处理
-          alert(error);
+          self.$message.error(error)
         });
     },
 
@@ -195,24 +202,29 @@
           var data = res.data;
           if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
             $.each(self.tableData, function(index, vm_data){
-              if (vm_data["uuid"] == vm_uuid){
+              if (vm_data && vm_data["uuid"] == vm_uuid){
                 self.tableData.splice(index, 1)
+                return true
               }
             });
             self.query_task(data.RespBody.Result.task_id)
           }else{
-            alert(data.RespHead.Message);
+            self.$message({
+              message: data.RespHead.Message,
+              type: 'warning'
+            });
           }
         })
         .catch(function (error) { // 请求失败处理
-          alert(error);
+          self.$message.error(error);
         });
       }
     },
     
     handleEdit(data){
       alert("功能正在开发中")
-    }
+    },
+
   },
   }
 </script>
