@@ -1,141 +1,140 @@
 <template>
   <div>
-    <div>
-      <el-table
-        :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-        v-loading="loading"
-        style="width: 100%"
-      >
-        <el-table-column type="expand">
-          <template slot-scope="props">
-            <el-form label-position="left" inline class="demo-table-expand">
-              <el-form-item label="id">
-                <span>{{ props.row.id }}</span>
-              </el-form-item>
-              <el-form-item label="uuid">
-                <span>{{ props.row.uuid }}</span>
-              </el-form-item>
-              <el-form-item label="模板名称">
-                <span>{{ props.row.name }}</span>
-              </el-form-item>
-              <el-form-item label="系统">
-                <span>{{ props.row.os }}</span>
-              </el-form-item>
-              <el-form-item label="类型">
-                <span>{{ props.row.type }}</span>
-              </el-form-item>
-              <el-form-item label="login_user">
-                <span>{{ props.row.login_user }}</span>
-              </el-form-item>
-              <el-form-item label="login_pass">
-                <span>{{ props.row.login_pass }}</span>
-              </el-form-item>
-              <el-form-item label="node_uuid">
-                <span>{{ props.row.node_uuid }}</span>
-              </el-form-item>
-              <el-form-item label="organization_uuid">
-                <span>{{ props.row.organization_uuid }}</span>
-              </el-form-item>
-              <el-form-item label="storage_pool_uuid">
-                <span>{{ props.row.storage_pool_uuid }}</span>
-              </el-form-item>
-              <el-form-item label="描述">
-                <span>{{ props.row.desc }}</span>
-              </el-form-item>
-            </el-form>
-          </template>
-        </el-table-column>
-        <el-table-column label="模板名称" prop="name" sortable></el-table-column>
-        <el-table-column label="系统" prop="os" sortable></el-table-column>
-        <el-table-column label="类型" prop="type" sortable></el-table-column>
-        <el-table-column align="right">
-          <template slot="header">
-            <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
-          </template>
-          <template slot-scope="scope">
-            <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
-            <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
-            <el-button
-              size="mini"
-              type="info"
-              icon="el-icon-document-copy"
-              @click="clone(scope.row.uuid)"
-            >克隆</el-button>
-          </template>
-        </el-table-column>
-      </el-table>
-    </div>
+    <el-table
+      :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+      v-loading="loading"
+      style="width: 100%"
+    >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="id">
+              <span>{{ props.row.id }}</span>
+            </el-form-item>
+            <el-form-item label="uuid">
+              <span>{{ props.row.uuid }}</span>
+            </el-form-item>
+            <el-form-item label="模板名称">
+              <span>{{ props.row.name }}</span>
+            </el-form-item>
+            <el-form-item label="系统">
+              <span>{{ props.row.os }}</span>
+            </el-form-item>
+            <el-form-item label="类型">
+              <span>{{ props.row.type }}</span>
+            </el-form-item>
+            <el-form-item label="login_user">
+              <span>{{ props.row.login_user }}</span>
+            </el-form-item>
+            <el-form-item label="login_pass">
+              <span>{{ props.row.login_pass }}</span>
+            </el-form-item>
+            <el-form-item label="node_uuid">
+              <span>{{ props.row.node_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="organization_uuid">
+              <span>{{ props.row.organization_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="storage_pool_uuid">
+              <span>{{ props.row.storage_pool_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="描述">
+              <span>{{ props.row.desc }}</span>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column label="模板名称" prop="name" sortable></el-table-column>
+      <el-table-column label="系统" prop="os" sortable></el-table-column>
+      <el-table-column label="类型" prop="type" sortable></el-table-column>
+      <el-table-column align="right">
+        <template slot="header">
+          <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+        </template>
+        <template slot-scope="scope">
+          <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
+          <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
+          <el-button
+            size="mini"
+            type="info"
+            icon="el-icon-document-copy"
+            @click="clone(scope.row.uuid)"
+          >克隆</el-button>
+        </template>
+      </el-table-column>
+    </el-table>
 
-    <div>
-      <el-dialog
-        title="克隆虚拟机"
-        :visible.sync="dialogFormVisible"
-        :label-position="labelPosition"
-        label-width="formLabelWidth"
-      >
-        <el-form ref="form" :model="form">
-          <el-form-item label="虚拟机名称">
-            <el-input v-model="form.name"></el-input>
-          </el-form-item>
-          <el-form-item label="cpu">
-            <el-select v-model="form.cpu" placeholder="请选择cpu数量">
-              <el-option label="1" value="1"></el-option>
-              <el-option label="2" value="2"></el-option>
-              <el-option label="4" value="4"></el-option>
-              <el-option label="8" value="8"></el-option>
-              <el-option label="16" value="16"></el-option>
-              <el-option label="32" value="32"></el-option>
-            </el-select>
-          </el-form-item>
-          <el-form-item label="内存">
-            <el-select v-model="form.mem" placeholder="请选择内存大小">
-              <el-option label="1" value="1048576"></el-option>
-              <el-option label="2" value="2097152"></el-option>
-              <el-option label="4" value="4194304"></el-option>
-              <el-option label="8" value="8388608"></el-option>
-              <el-option label="16" value="16777216"></el-option>
-              <el-option label="32" value="33554432"></el-option>
-            </el-select>
-          </el-form-item>
+    <el-dialog
+      title="克隆虚拟机"
+      :visible.sync="dialogFormVisible"
+      :label-position="labelPosition"
+      label-width="formLabelWidth"
+      width="650px"
+      size="small "
+      top="25px"
+    >
+      <el-form ref="form" :model="form">
+        <el-form-item label="虚拟机名称">
+          <el-input v-model="form.name"></el-input>
+        </el-form-item>
+        <el-form-item label="cpu">
+          <el-select v-model="form.cpu" placeholder="请选择cpu数量">
+            <el-option label="1" value="1"></el-option>
+            <el-option label="2" value="2"></el-option>
+            <el-option label="4" value="4"></el-option>
+            <el-option label="8" value="8"></el-option>
+            <el-option label="16" value="16"></el-option>
+            <el-option label="32" value="32"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="内存">
+          <el-select v-model="form.mem" placeholder="请选择内存大小">
+            <el-option label="1" value="1048576"></el-option>
+            <el-option label="2" value="2097152"></el-option>
+            <el-option label="4" value="4194304"></el-option>
+            <el-option label="8" value="8388608"></el-option>
+            <el-option label="16" value="16777216"></el-option>
+            <el-option label="32" value="33554432"></el-option>
+          </el-select>
+        </el-form-item>
 
-          <el-form-item label="网络名称">
-            <el-select v-model="form.network_name1" placeholder="请选择网络">
-              <el-option
-                v-for="item in networks"
-                :key="item.name"
-                :label="item.name"
-                :value="item.name"
-              ></el-option>
-            </el-select>
-          </el-form-item>
+        <el-form-item label="网络名称">
+          <el-select v-model="form.network_name1" placeholder="请选择网络">
+            <el-option
+              v-for="item in networks"
+              :key="item.name"
+              :label="item.name"
+              :value="item.name"
+            ></el-option>
+          </el-select>
+        </el-form-item>
 
-          <el-form-item label="是否为DHCP">
-            <el-switch v-model="form.is_static1"></el-switch>
-          </el-form-item>
+        <el-form-item label="是否为DHCP">
+          <el-switch v-model="form.is_static1"></el-switch>
+        </el-form-item>
 
-          <el-form-item label="ip地址">
-            <el-input v-model="form.ip_address1" :disabled="form.is_static1"></el-input>
-          </el-form-item>
+        <el-form-item label="ip地址">
+          <el-input v-model="form.ip_address1" :disabled="form.is_static1"></el-input>
+        </el-form-item>
 
-          <el-form-item label="网关">
-            <el-input v-model="form.gateway1" :disabled="form.is_static1"></el-input>
-          </el-form-item>
+        <el-form-item label="网关">
+          <el-input v-model="form.gateway1" :disabled="form.is_static1"></el-input>
+        </el-form-item>
 
-          <el-form-item label="VNC">
-            <el-switch v-model="form.vnc"></el-switch>
-          </el-form-item>
-          <el-form-item label="描述">
-            <el-input type="textarea" v-model="form.desc"></el-input>
-          </el-form-item>
-        </el-form>
-        <div slot="footer" class="dialog-footer">
-          <el-button @click="addDisk">新增磁盘</el-button>
-          <el-button @click="addNetCard">新增网卡</el-button>
-          <el-button @click="dialogFormVisible = false">取 消</el-button>
-          <el-button type="primary" @click="btn_clone">确 定</el-button>
-        </div>
-      </el-dialog>
-    </div>
+        <el-form-item label="VNC">
+          <el-switch v-model="form.vnc"></el-switch>
+        </el-form-item>
+        <el-form-item label="描述">
+          <el-input type="textarea" v-model="form.desc"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="addDisk">新增磁盘</el-button>
+        <el-button @click="addNetCard">新增网卡</el-button>
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="btn_clone">确 定</el-button>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
@@ -162,7 +161,7 @@ export default {
   data() {
     return {
       networks: [],
-      labelPosition: "left",
+      labelPosition: "right",
       tableData: [],
       search: "",
       loading: true,
@@ -182,7 +181,7 @@ export default {
         is_static1: false,
         desc: ""
       },
-      formLabelWidth: "120px"
+      formLabelWidth: "80px"
     };
   },
   mounted() {
@@ -227,10 +226,14 @@ export default {
             res.data.RespBody.Result.status != "PENDING" &&
             res.data.RespBody.Result.status != "DEFAULT"
           ) {
-            self.$message({
-              message: res.data.RespBody.Result.message,
-              type: "success"
-            });
+            if (res.data.RespBody.Result.status == "SUCCESS") {
+              self.$message({
+                message: res.data.RespBody.Result.message,
+                type: "success"
+              });
+            } else {
+              self.$message.error(res.data.RespBody.Result.message);
+            }
           } else {
             self.query_task(uuid);
           }
@@ -336,7 +339,7 @@ export default {
       }
       post_date["net_cards"].push(net_card1);
 
-      let self = this
+      let self = this;
 
       axios
         .post(self.GLOBAL.MaxCloudUrl + "/vm/clone", post_date)
@@ -365,9 +368,13 @@ export default {
       alert("功能正在开发中");
     },
 
-    addNetCard() {this.$message("功能开发中");},
+    addNetCard() {
+      this.$message("功能开发中");
+    },
 
-    addDisk() {this.$message("功能开发中");}
+    addDisk() {
+      this.$message("功能开发中");
+    }
   }
 };
 </script>
