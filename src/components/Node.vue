@@ -33,7 +33,7 @@
     <el-table-column label="管理ip" prop="manage_ip" sortable></el-table-column>
     <el-table-column label="状态" prop="is_working" sortable></el-table-column>
     <el-table-column align="right">
-      <template slot="header">
+      <template slot="header" slot-scope="scope">
         <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </template>
       <template slot-scope="scope">

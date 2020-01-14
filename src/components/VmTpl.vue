@@ -48,9 +48,12 @@
       <el-table-column label="系统" prop="os" sortable></el-table-column>
       <el-table-column label="类型" prop="type" sortable></el-table-column>
       <el-table-column align="right">
-        <template slot="header">
-          <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
-        </template>
+        <template slot="header" slot-scope="scope">
+        <el-input
+          v-model="search"
+          size="mini"
+          placeholder="输入关键字搜索"/>
+      </template>
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
           <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
@@ -67,17 +70,14 @@
     <el-dialog
       title="克隆虚拟机"
       :visible.sync="dialogFormVisible"
-      :label-position="labelPosition"
-      label-width="formLabelWidth"
+      top="45px"
       width="650px"
-      size="small "
-      top="25px"
     >
-      <el-form ref="form" :model="form">
-        <el-form-item label="虚拟机名称">
-          <el-input v-model="form.name"></el-input>
+      <el-form :model="form" :label-position="labelPosition">
+        <el-form-item label="虚拟机名称" :label-width="formLabelWidth">
+          <el-input v-model="form.name" autocomplete="off"></el-input>
         </el-form-item>
-        <el-form-item label="cpu">
+        <el-form-item label="cpu" :label-width="formLabelWidth">
           <el-select v-model="form.cpu" placeholder="请选择cpu数量">
             <el-option label="1" value="1"></el-option>
             <el-option label="2" value="2"></el-option>
@@ -87,7 +87,7 @@
             <el-option label="32" value="32"></el-option>
           </el-select>
         </el-form-item>
-        <el-form-item label="内存">
+        <el-form-item label="内存" :label-width="formLabelWidth">
           <el-select v-model="form.mem" placeholder="请选择内存大小">
             <el-option label="1" value="1048576"></el-option>
             <el-option label="2" value="2097152"></el-option>
@@ -98,7 +98,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="网络名称">
+        <el-form-item label="网络名称" :label-width="formLabelWidth">
           <el-select v-model="form.network_name1" placeholder="请选择网络">
             <el-option
               v-for="item in networks"
@@ -109,22 +109,22 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="是否为DHCP">
+        <el-form-item label="是否为DHCP" :label-width="formLabelWidth">
           <el-switch v-model="form.is_static1"></el-switch>
         </el-form-item>
 
-        <el-form-item label="ip地址">
-          <el-input v-model="form.ip_address1" :disabled="form.is_static1"></el-input>
+        <el-form-item label="ip地址" :label-width="formLabelWidth">
+          <el-input v-model="form.ip_address1" :disabled="form.is_static1" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item label="网关">
-          <el-input v-model="form.gateway1" :disabled="form.is_static1"></el-input>
+        <el-form-item label="网关" :label-width="formLabelWidth">
+          <el-input v-model="form.gateway1" :disabled="form.is_static1" autocomplete="off"></el-input>
         </el-form-item>
 
-        <el-form-item label="VNC">
+        <el-form-item label="VNC" :label-width="formLabelWidth">
           <el-switch v-model="form.vnc"></el-switch>
         </el-form-item>
-        <el-form-item label="描述">
+        <el-form-item label="描述" :label-width="formLabelWidth">
           <el-input type="textarea" v-model="form.desc"></el-input>
         </el-form-item>
       </el-form>
@@ -151,6 +151,19 @@
   margin-bottom: 0;
   width: 50%;
 }
+
+.el-dialog .el-form {
+  width: 80%;
+}
+
+.el-dialog .el-form .el-select {
+  width: 100%;
+}
+
+.el-dialog .el-form .el-form-item {
+  text-align: left;
+}
+
 body {
   margin: 0;
 }
@@ -161,7 +174,6 @@ export default {
   data() {
     return {
       networks: [],
-      labelPosition: "right",
       tableData: [],
       search: "",
       loading: true,
@@ -181,7 +193,8 @@ export default {
         is_static1: false,
         desc: ""
       },
-      formLabelWidth: "80px"
+      formLabelWidth: "150px",
+      labelPosition: "left"
     };
   },
   mounted() {
@@ -308,9 +321,6 @@ export default {
 
     btn_clone() {
       this.dialogFormVisible = false;
-      console.log(this.form.mem);
-      console.log(this.form.cpu);
-      console.log();
       var post_date = {
         name: this.form.name,
         tpl_uuid: this.form.tpl_uuid,

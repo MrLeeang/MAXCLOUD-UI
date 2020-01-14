@@ -29,7 +29,7 @@
     <el-table-column label="主机数量" prop="count" sortable></el-table-column>
     <el-table-column label="vlan_id" prop="vlan_id" sortable></el-table-column>
     <el-table-column align="right">
-      <template slot="header">
+      <template slot="header" slot-scope="scope">
         <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </template>
       <template slot-scope="scope">

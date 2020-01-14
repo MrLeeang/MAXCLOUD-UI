@@ -84,7 +84,7 @@
     <el-table-column label="快速启动" prop="quick_start" sortable></el-table-column>
     <el-table-column label="状态" prop="run_state" sortable></el-table-column>
     <el-table-column align="right">
-      <template slot="header">
+      <template slot="header" slot-scope="scope">
         <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </template>
       <template slot-scope="scope">
