@@ -113,7 +113,7 @@
 .demo-table-expand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 50%;
+  width: 45%;
 }
 </style>
 
@@ -137,6 +137,7 @@ export default {
         } else {
           self.tableData = res.data.RespBody.Result;
           self.loading = false;
+          console.log(self.tableData)
         }
       })
       .catch(function(error) {
@@ -214,7 +215,7 @@ export default {
     },
 
     handleEdit(data) {
-      alert("功能正在开发中");
+      this.$message("功能正在开发中");
     }
   }
 };

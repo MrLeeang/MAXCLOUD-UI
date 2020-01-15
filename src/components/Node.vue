@@ -156,7 +156,7 @@ export default {
     },
 
     handleEdit(data) {
-      alert("功能正在开发中");
+      this.$message("功能正在开发中");
     }
   }
 };

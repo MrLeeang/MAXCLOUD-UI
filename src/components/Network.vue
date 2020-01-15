@@ -161,7 +161,7 @@ export default {
     },
 
     handleEdit(data) {
-      alert("暂不支持编辑");
+      this.$message("功能开发中");
     }
   }
 };

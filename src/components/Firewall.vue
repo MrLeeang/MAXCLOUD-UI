@@ -240,6 +240,7 @@ export default {
 
     handleEdit(index, data) {
       console.log(data);
+      this.$message("功能开发中");
     },
     add_interface(firewall_data) {
       this.add_interface_data.firewall_uuid = firewall_data["uuid"];
