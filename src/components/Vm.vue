@@ -1,108 +1,294 @@
 <template>
-  <el-table
-    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-    v-loading="loading"
-    style="width: 100%"
-  >
-    <el-table-column type="expand">
-      <template slot-scope="props">
-        <el-form label-position="left" inline class="demo-table-expand">
-          <el-form-item label="id">
-            <span>{{ props.row.id }}</span>
+  <div>
+    <el-table
+      :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
+      v-loading="loading"
+      style="width: 100%"
+    >
+      <el-table-column type="expand">
+        <template slot-scope="props">
+          <el-form label-position="left" inline class="demo-table-expand">
+            <el-form-item label="id">
+              <span>{{ props.row.id }}</span>
+            </el-form-item>
+            <el-form-item label="uuid">
+              <span>{{ props.row.uuid }}</span>
+            </el-form-item>
+            <el-form-item label="服务器名称">
+              <span>{{ props.row.name }}</span>
+            </el-form-item>
+            <el-form-item label="系统">
+              <span>{{ props.row.os }}</span>
+            </el-form-item>
+            <el-form-item label="系统内存">
+              <span>{{ props.row.memory }}</span>
+            </el-form-item>
+            <el-form-item label="系统cpu">
+              <span>{{ props.row.cpu }}</span>
+            </el-form-item>
+            <el-form-item label="是否注册">
+              <span>{{ props.row.on_define }}</span>
+            </el-form-item>
+            <el-form-item label="快速启动">
+              <span>{{ props.row.quick_start }}</span>
+            </el-form-item>
+            <el-form-item label="状态">
+              <span>{{ props.row.run_state }}</span>
+            </el-form-item>
+            <el-form-item label="login_user">
+              <span>{{ props.row.login_user }}</span>
+            </el-form-item>
+            <el-form-item label="login_pass">
+              <span>{{ props.row.login_pass }}</span>
+            </el-form-item>
+            <el-form-item label="node_uuid">
+              <span>{{ props.row.node_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="organization_uuid">
+              <span>{{ props.row.organization_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="parent_uuid">
+              <span>{{ props.row.parent_uuid }}</span>
+            </el-form-item>
+            <el-form-item label="this_snapshot">
+              <span>{{ props.row.this_snapshot }}</span>
+            </el-form-item>
+            <el-form-item label="vnc_enable">
+              <span>{{ props.row.vnc_enable }}</span>
+            </el-form-item>
+            <el-form-item label="vnc_pass">
+              <span>{{ props.row.vnc_pass }}</span>
+            </el-form-item>
+            <el-form-item label="vnc_port">
+              <span>{{ props.row.vnc_port }}</span>
+            </el-form-item>
+            <el-form-item label="vnc_token">
+              <span>{{ props.row.vnc_token }}</span>
+            </el-form-item>
+            <el-form-item label="xml_name">
+              <span>{{ props.row.xml_name }}</span>
+            </el-form-item>
+            <el-form-item label="xml_path">
+              <span>{{ props.row.xml_path }}</span>
+            </el-form-item>
+            <el-form-item label="描述">
+              <span>{{ props.row.desc }}</span>
+            </el-form-item>
+            <el-form-item label="磁盘">
+              <el-form inline v-for="(item,index) in props.row.disks" :key="index">
+                <el-form-item label="uuid">
+                  <span>{{ item.uuid }}</span>
+                </el-form-item>
+                <el-form-item label="dev">
+                  <span>{{ item.dev }}</span>
+                </el-form-item>
+                <el-form-item label="device">
+                  <span>{{ item.device }}</span>
+                </el-form-item>
+                <el-form-item label="driver_name">
+                  <span>{{ item.driver_name }}</span>
+                </el-form-item>
+                <el-form-item label="driver_type">
+                  <span>{{ item.driver_type }}</span>
+                </el-form-item>
+                <el-form-item label="name">
+                  <span>{{ item.name }}</span>
+                </el-form-item>
+                <el-form-item label="size">
+                  <span>{{ item.size }}</span>
+                </el-form-item>
+                <el-form-item label="source_file">
+                  <span>{{ item.source_file }}</span>
+                </el-form-item>
+                <el-form-item label="storage_pool_uuid">
+                  <span>{{ item.storage_pool_uuid }}</span>
+                </el-form-item>
+                <el-form-item label="type">
+                  <span>{{ item.type }}</span>
+                </el-form-item>
+              </el-form>
+            </el-form-item>
+            <el-form-item label="网卡">
+              <el-form inline v-for="(item,index) in props.row.net_cards" :key="index">
+                <el-form-item label="uuid">
+                  <span>{{ item.uuid }}</span>
+                </el-form-item>
+                <el-form-item label="index">
+                  <span>{{ item.index }}</span>
+                </el-form-item>
+                <el-form-item label="名称">
+                  <span>{{ item.name }}</span>
+                </el-form-item>
+                <el-form-item label="mac地址">
+                  <span>{{ item.mac_address }}</span>
+                </el-form-item>
+                <el-form-item label="是否为静态ip">
+                  <span>{{ item.is_static }}</span>
+                </el-form-item>
+                <el-form-item label="ip地址">
+                  <span>{{ item.ip_address }}</span>
+                </el-form-item>
+                <el-form-item label="掩码">
+                  <span>{{ item.net_mask }}</span>
+                </el-form-item>
+                <el-form-item label="网关">
+                  <span>{{ item.gateway }}</span>
+                </el-form-item>
+                <el-form-item label="端口">
+                  <span>{{ item.port_key }}</span>
+                </el-form-item>
+                <el-form-item label="类型">
+                  <span>{{ item.type }}</span>
+                </el-form-item>
+                <el-form-item label="网络uuid">
+                  <span>{{ item.network_uuid }}</span>
+                </el-form-item>
+                <el-form-item label="网络名称">
+                  <span>{{ item.network.name }}</span>
+                </el-form-item>
+                <el-form-item label="网络vlan">
+                  <span>{{ item.network.vlan_id }}</span>
+                </el-form-item>
+                <el-form-item label="网络是否开启dhcp">
+                  <span>{{ item.network.is_dhcp }}</span>
+                </el-form-item>
+                <el-form-item label="网络是否删除">
+                  <span>{{ item.network.is_delete }}</span>
+                </el-form-item>
+                <el-form-item label="网络虚拟化">
+                  <span>{{ item.network.virtual_port_type }}</span>
+                </el-form-item>
+                <el-form-item label="网络描述">
+                  <span>{{ item.network.desc }}</span>
+                </el-form-item>
+              </el-form>
+            </el-form-item>
+            <el-form-item label="快照">
+              <el-form inline v-for="(item,index) in props.row.snapshots" :key="index">
+                <el-form-item label="uuid">
+                  <span>{{ item.uuid }}</span>
+                </el-form-item>
+                <el-form-item label="name">
+                  <span>{{ item.name }}</span>
+                </el-form-item>
+                <el-form-item label="描述">
+                  <span>{{ item.desc }}</span>
+                </el-form-item>
+                <el-form-item label="时间">
+                  <span>{{ item.create_time }}</span>
+                </el-form-item>
+              </el-form>
+            </el-form-item>
+          </el-form>
+        </template>
+      </el-table-column>
+      <el-table-column label="服务器名称" prop="name" sortable></el-table-column>
+      <el-table-column label="系统" prop="os" sortable></el-table-column>
+      <el-table-column label="系统内存" prop="memory" sortable></el-table-column>
+      <el-table-column label="系统cpu" prop="cpu" sortable></el-table-column>
+      <el-table-column label="是否注册" prop="on_define" sortable></el-table-column>
+      <el-table-column label="快速启动" prop="quick_start" sortable></el-table-column>
+      <el-table-column label="状态" prop="run_state" sortable></el-table-column>
+      <el-table-column align="right">
+        <template slot="header" slot-scope="scope">
+          <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+        </template>
+        <template slot-scope="scope">
+          <el-button size="mini" @click="handleEdit(scope.row)" icon="el-icon-edit"></el-button>
+          <el-button
+            size="mini"
+            type="danger"
+            @click="remove(scope.row.uuid)"
+            icon="el-icon-delete"
+          ></el-button>
+          <el-link
+            style="margin-left: 10px;"
+            :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
+            target="_blank"
+            icon="el-icon-connection"
+            :underline="false"
+          >VNC</el-link>
+        </template>
+      </el-table-column>
+    </el-table>
+    <el-drawer
+      title="编辑"
+      :before-close="handleClose"
+      :visible.sync="handleEditDis"
+      direction="rtl"
+      custom-class="demo-drawer"
+      ref="drawer"
+      size=40%
+    >
+      <div class="demo-drawer__content">
+        <el-form :model="editform">
+          <el-form-item label="活动名称" :label-width="formLabelWidth">
+            <el-input v-model="editform.name" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="uuid">
-            <span>{{ props.row.uuid }}</span>
-          </el-form-item>
-          <el-form-item label="服务器名称">
-            <span>{{ props.row.name }}</span>
-          </el-form-item>
-          <el-form-item label="系统">
-            <span>{{ props.row.os }}</span>
-          </el-form-item>
-          <el-form-item label="系统内存">
-            <span>{{ props.row.memory }}</span>
-          </el-form-item>
-          <el-form-item label="系统cpu">
-            <span>{{ props.row.cpu }}</span>
-          </el-form-item>
-          <el-form-item label="是否注册">
-            <span>{{ props.row.on_define }}</span>
-          </el-form-item>
-          <el-form-item label="快速启动">
-            <span>{{ props.row.quick_start }}</span>
-          </el-form-item>
-          <el-form-item label="状态">
-            <span>{{ props.row.run_state }}</span>
-          </el-form-item>
-          <el-form-item label="login_user">
-            <span>{{ props.row.login_user }}</span>
-          </el-form-item>
-          <el-form-item label="login_pass">
-            <span>{{ props.row.login_pass }}</span>
-          </el-form-item>
-          <el-form-item label="node_uuid">
-            <span>{{ props.row.node_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="organization_uuid">
-            <span>{{ props.row.organization_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="parent_uuid">
-            <span>{{ props.row.parent_uuid }}</span>
-          </el-form-item>
-          <el-form-item label="this_snapshot">
-            <span>{{ props.row.this_snapshot }}</span>
-          </el-form-item>
-          <el-form-item label="vnc_enable">
-            <span>{{ props.row.vnc_enable }}</span>
-          </el-form-item>
-          <el-form-item label="vnc_pass">
-            <span>{{ props.row.vnc_pass }}</span>
-          </el-form-item>
-          <el-form-item label="vnc_port">
-            <span>{{ props.row.vnc_port }}</span>
-          </el-form-item>
-          <el-form-item label="vnc_token">
-            <span>{{ props.row.vnc_token }}</span>
-          </el-form-item>
-          <el-form-item label="xml_name">
-            <span>{{ props.row.xml_name }}</span>
-          </el-form-item>
-          <el-form-item label="xml_path">
-            <span>{{ props.row.xml_path }}</span>
-          </el-form-item>
-          <el-form-item label="描述">
-            <span>{{ props.row.desc }}</span>
+          <el-form-item label="活动区域" :label-width="formLabelWidth">
+            <el-select v-model="editform.region" placeholder="请选择活动区域">
+              <el-option label="区域一" value="shanghai"></el-option>
+              <el-option label="区域二" value="beijing"></el-option>
+            </el-select>
           </el-form-item>
         </el-form>
-      </template>
-    </el-table-column>
-    <el-table-column label="服务器名称" prop="name" sortable></el-table-column>
-    <el-table-column label="系统" prop="os" sortable></el-table-column>
-    <el-table-column label="系统内存" prop="memory" sortable></el-table-column>
-    <el-table-column label="系统cpu" prop="cpu" sortable></el-table-column>
-    <el-table-column label="是否注册" prop="on_define" sortable></el-table-column>
-    <el-table-column label="快速启动" prop="quick_start" sortable></el-table-column>
-    <el-table-column label="状态" prop="run_state" sortable></el-table-column>
-    <el-table-column align="right">
-      <template slot="header" slot-scope="scope">
-        <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
-      </template>
-      <template slot-scope="scope">
-        <el-button size="mini" @click="handleEdit(scope.row)" icon="el-icon-edit"></el-button>
-        <el-button size="mini" type="danger" @click="remove(scope.row.uuid)" icon="el-icon-delete"></el-button>
-        <el-link
-          style="margin-left: 10px;"
-          :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
-          target="_blank"
-          icon="el-icon-connection"
-          :underline="false"
-        >VNC</el-link>
-      </template>
-    </el-table-column>
-  </el-table>
+        <div class="demo-drawer__footer">
+          <el-button @click="cancelForm">取 消</el-button>
+          <el-button
+            type="primary"
+            @click="$refs.drawer.closeDrawer()"
+            :loading="editloading"
+          >{{ editloading ? '提交中 ...' : '确 定' }}</el-button>
+        </div>
+      </div>
+    </el-drawer>
+  </div>
 </template>
 
 <style>
+.el-drawer__header>:first-child {
+    -webkit-box-flex: 1;
+    -ms-flex: 1;
+    flex: 1;
+    font-size: 25px;
+}
+.demo-drawer__content form {
+    flex: 1;
+}
+.demo-drawer__content {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+.el-drawer__body {
+    padding: 20px;
+}
+.demo-drawer__footer {
+    display: flex;
+}
+.demo-drawer__footer button {
+    flex: 1;
+}
+.demo-table-expand .el-form-item .el-form label {
+  width: 135px;
+  color: #99a9bf;
+}
+
+.demo-table-expand .el-form-item .el-form .el-form-item {
+  margin-left: 135px;
+  margin-right: 0;
+  margin-bottom: 0;
+  width: 100%;
+}
+
+.demo-table-expand .el-form-item__content {
+  line-height: 20px;
+}
+
+.demo-table-expand .el-form-item__label {
+  line-height: 20px;
+}
+
 .demo-table-expand {
   font-size: 0;
 }
@@ -113,8 +299,9 @@
 .demo-table-expand .el-form-item {
   margin-right: 0;
   margin-bottom: 0;
-  width: 45%;
+  width: 49%;
 }
+
 </style>
 
 <script>
@@ -123,7 +310,22 @@ export default {
     return {
       tableData: [],
       search: "",
-      loading: true
+      error_messages: "",
+      loading: true,
+      editloading: false,
+      handleEditDis: false,
+      timer: null,
+      formLabelWidth: '80px',
+      editform: {
+        name: '',
+        region: '',
+        date1: '',
+        date2: '',
+        delivery: false,
+        type: [],
+        resource: '',
+        desc: ''
+      },
     };
   },
   mounted() {
@@ -137,7 +339,7 @@ export default {
         } else {
           self.tableData = res.data.RespBody.Result;
           self.loading = false;
-          console.log(self.tableData)
+          console.log(self.tableData);
         }
       })
       .catch(function(error) {
@@ -215,7 +417,40 @@ export default {
     },
 
     handleEdit(data) {
-      this.$message("功能正在开发中");
+      this.handleEditDis = true;
+    },
+
+    submitEdit(){
+      this.error_messages="功能正在开发中"
+      return false
+    },
+
+    handleClose(done) {
+      if (this.editloading) {
+        return;
+      }
+      this.$confirm('确定要提交表单吗？')
+        .then(_ => {
+          this.editloading = true;
+          this.timer = setTimeout(() => {
+            if (this.submitEdit()){
+              done();
+            }else{
+              this.$message(this.error_messages)
+            }
+            // 动画关闭需要一定的时间
+            setTimeout(() => {
+              this.editloading = false;
+            }, 400);
+          }, 2000);
+        })
+        .catch(_ => {});
+    },
+
+    cancelForm() {
+      this.editloading = false;
+      this.handleEditDis = false;
+      clearTimeout(this.timer);
     }
   }
 };
