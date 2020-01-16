@@ -10,11 +10,17 @@
           <el-form-item label="id">
             <span>{{ props.row.id }}</span>
           </el-form-item>
+          <el-form-item label="uuid">
+            <span>{{ props.row.uuid }}</span>
+          </el-form-item>
           <el-form-item label="镜像名称">
             <span>{{ props.row.name }}</span>
           </el-form-item>
           <el-form-item label="路径">
             <span>{{ props.row.source }}</span>
+          </el-form-item>
+          <el-form-item label="上传路径">
+            <span>{{ props.row.upload_path }}</span>
           </el-form-item>
           <el-form-item label="描述">
             <span>{{ props.row.desc }}</span>
@@ -114,10 +120,10 @@ export default {
         type: "warning"
       })
         .then(() => {
-          let data = [{ uuid: uuid }];
+          let data = { uuid: uuid };
           let self = this;
           axios
-            .post(self.GLOBAL.MaxCloudUrl + "/vm/remove", data)
+            .post(self.GLOBAL.MaxCloudUrl + "/iso/remove", data)
             .then(function(res) {
               var data = res.data;
               if (
@@ -130,7 +136,10 @@ export default {
                     return true;
                   }
                 });
-                self.query_task(data.RespBody.Result.task_id);
+                self.$message({
+                message: data.RespHead.Message,
+                type: "success"
+              });
               } else {
                 self.$message({
                   message: data.RespHead.Message,

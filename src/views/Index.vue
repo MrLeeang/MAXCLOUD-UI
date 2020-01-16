@@ -15,6 +15,8 @@
       <el-menu-item index="8-2">创建虚拟机</el-menu-item>
       <el-menu-item index="8-3">添加网络</el-menu-item>
       <el-menu-item index="8-4">添加防火墙</el-menu-item>
+      <el-menu-item index="8-5">上传镜像</el-menu-item>
+      <el-menu-item index="8-6">上传模板</el-menu-item>
     </el-submenu>
     <el-submenu index="6" style="float:right">
       <template slot="title">用户</template>
@@ -59,6 +61,12 @@
       <div v-else-if="activeIndex === '8-4'">
         <AddFirewall></AddFirewall>
       </div>
+      <div v-else-if="activeIndex === '8-5'">
+        <UploadIso></UploadIso>
+      </div>
+      <div v-else-if="activeIndex === '8-6'">
+        <UploadVmTpl></UploadVmTpl>
+      </div>
       <div v-else>
         非 A/B/C
       </div>
@@ -78,6 +86,8 @@ import AddFirewall from "../components/AddFirewall"
 import AddNetwork from "../components/AddNetwork"
 import AddNode from "../components/AddNode"
 import AddVm from "../components/AddVm"
+import UploadIso from "../components/UploadIso"
+import UploadVmTpl from "../components/UploadVmTpl"
 export default {
   data () {
     return {
@@ -95,7 +105,9 @@ export default {
     AddFirewall,
     AddNode,
     AddVm,
-    AddNetwork
+    AddNetwork,
+    UploadIso,
+    UploadVmTpl,
   },
   created() {
     document.title="index";
