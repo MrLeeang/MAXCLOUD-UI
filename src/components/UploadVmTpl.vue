@@ -63,6 +63,7 @@
               :on-exceed="handleExceed"
               :data="form"
               :auto-upload="false"
+              :with-credentials="true"
             >
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">

@@ -1,168 +1,128 @@
 <template>
-  <el-table
-    :data="tableData.filter(data => !search || data.name.toLowerCase().includes(search.toLowerCase()))"
-    style="width: 100%"
-     row-key="uuid"
-    :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-    >
-    <el-table-column
-      label="防火墙名称"
-      prop="firewall_name"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="接口名称"
-      prop="name"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="is_static"
-      prop="is_static"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="ip_address"
-      prop="ip_address"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="net_mask"
-      prop="net_mask"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="gateway"
-      prop="gateway"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="network_uuid"
-      prop="network_uuid"
-      sortable>
-    </el-table-column>
-    <el-table-column
-      label="port_key"
-      prop="port_key"
-      sortable>
-    </el-table-column>
-    <el-table-column align="right">
-      <template slot="header">
-        <el-input
-          v-model="search"
-          size="mini"
-          placeholder="输入关键字搜索"/>
-      </template>
-      <template slot-scope="scope">
-        <el-button
-          size="mini"
-          @click="handleEdit(scope.$index, scope.row)"
-          icon="el-icon-edit"></el-button>
-        <el-button
-          size="mini"
-          type="danger"
-          @click="remove_vm(scope.row)"
-          icon="el-icon-delete"></el-button>
-      </template>
-    </el-table-column>
-  </el-table>
+  <div class="upload_page">
+    <el-row :gutter="20">
+      <el-col :span="6" :offset="8">
+        <el-form ref="form" :model="form" :label-width="formLabelWidth">
+          <el-form-item label="网络名称">
+            <el-input v-model="form.name"></el-input>
+          </el-form-item>
+          <el-form-item label="vlan">
+            <el-input v-model="form.vlan_id"></el-input>
+          </el-form-item>
+          <el-form-item label="cidr">
+            <el-input v-model="form.cidr"></el-input>
+          </el-form-item>
+          <el-form-item label="开启DHCP" :label-width="formLabelWidth">
+            <el-switch v-model="form.is_dhcp"></el-switch>
+          </el-form-item>
+          <el-form-item label="起始ip地址" :label-width="formLabelWidth">
+            <el-input v-model="form.dhcp.start_ip" :disabled="!form.is_dhcp" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="结束ip地址" :label-width="formLabelWidth">
+            <el-input v-model="form.dhcp.end_ip" :disabled="!form.is_dhcp" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="掩码" :label-width="formLabelWidth">
+            <el-input v-model="form.dhcp.netmask" :disabled="!form.is_dhcp" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="网关" :label-width="formLabelWidth">
+            <el-input v-model="form.dhcp.gateway" :disabled="!form.is_dhcp" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item>
+            <el-button type="primary" @click="onSubmit">立即创建</el-button>
+            <el-button>取消</el-button>
+          </el-form-item>
+        </el-form>
+      </el-col>
+    </el-row>
+  </div>
 </template>
-
 <style>
-  .demo-table-expand {
-    font-size: 0;
-  }
-  .demo-table-expand label {
-    width: 135px;
-    color: #99a9bf;
-  }
-  .demo-table-expand .el-form-item {
-    margin-right: 0;
-    margin-bottom: 0;
-    width: 50%;
-  }
+.upload_page .el-form {
+  margin-top: 65px;
+}
+
+.el-form .el-upload__input {
+  display: none;
+}
+
+.el-form .el-upload__tip {
+  font-size: 12px;
+  color: #606266;
+  margin-top: 7px;
+}
+
+.el-form-item__content {
+  line-height: 20px;
+  position: relative;
+  font-size: 14px;
+}
+
+.el-form .el-form-item__content {
+  line-height: 20px;
+}
+
+.el-form .el-form-item__label {
+  line-height: 20px;
+}
+
+.el-form .el-form-item {
+  text-align: left;
+}
 </style>
-
 <script>
-  export default {
-    data() {
-      return {
-        tableData: [],
-        search: ''
-      }
-    },
-    mounted () {
-    let self = this
-    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl
-    axios
-      .get(self.GLOBAL.MaxCloudUrl+'/firewall/query')
-      .then(function (res){
-          if (res.data.RespHead.ErrorCode==1004){
-            self.$router.push({path: "/login"})
-          }else{
-            self.Result = res.data.RespBody.Result
-             $.each(self.Result, function(index, firewall_data){
-              var firewall_childrens = []
-              $.each(firewall_data["zones"], function(index, zone_data){
-                zone_data["firewall_name"] = firewall_data["name"]
-                zone_data["firewall_organization_uuid"] = firewall_data["firewall_organization_uuid"]
-                zone_data["firewall_node_uuid"] = firewall_data["firewall_node_uuid"]
-                firewall_childrens.push(zone_data)
-            });
-            firewall_data['children']=firewall_childrens
-            firewall_data['firewall_name']=firewall_data["name"]
-            firewall_data['name']=''
-            self.tableData.push(firewall_data)
-            });
-          }
-          console.log(self.tableData)
-      })
-      .catch(function (error) { // 请求失败处理
-        console.log(error);
-      });
-  },
-   methods:{
-    query_task(uuid) {
-      let self = this
-      axios.get(self.GLOBAL.MaxCloudUrl+'/task?uuid='+uuid).then(function (res){
-        if (res.data.RespBody.Result.status != 'PENDING' && res.data.RespBody.Result.status !="DEFAULT"){
-          alert(res.data.RespBody.Result.message);
-        }else{
-          self.query_task(uuid)
+export default {
+  data() {
+    return {
+      MaxCloudUrl: "",
+      formLabelWidth: "120px",
+      form: {
+        name: "",
+        vlan_id: "",
+        cidr: "",
+        is_dhcp: false,
+        dhcp: {
+          start_ip: "",
+          end_ip: "",
+          gateway: "",
+          netmask: ""
         }
-        }).catch(function (error) { // 请求失败处理
-          alert(error);
-        });
-    },
+      }
+    };
+  },
 
-    remove_vm(vm_uuid) {
-      if(confirm("确定要删除吗？")){
-        let data = [{"uuid": vm_uuid}]
-      let self = this
+  mounted() {
+    let self = this;
+    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
+  },
+
+  methods: {
+    onSubmit() {
+      let self = this;
       axios
-        .post(self.GLOBAL.MaxCloudUrl+'/vm/remove', data)
-        .then(function (res){
+        .post(this.GLOBAL.MaxCloudUrl + "/network/add", this.form)
+        .then(function(res) {
           var data = res.data;
-          if (data.RespHead.ErrorCode==0 && data.RespHead.Message=="SUCCESS"){
-            $.each(self.tableData, function(index, vm_data){
-              if (vm_data["uuid"] == vm_uuid){
-                self.tableData.splice(index, 1)
-              }
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "success"
             });
-            self.query_task(data.RespBody.Result.task_id)
-          }else{
-            alert(data.RespHead.Message);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
           }
         })
-        .catch(function (error) { // 请求失败处理
-          alert(error);
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
         });
-      }
-    },
-    
-    handleEdit(index, data){
-      console.log(data)
     }
-
-}
   }
+};
 </script>

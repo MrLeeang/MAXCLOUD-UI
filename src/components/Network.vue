@@ -122,7 +122,7 @@ export default {
             this.$message("无法删除默认网络");
             return;
           }
-          let data = [{ uuid: uuid }];
+          let data = {"uuid": uuid};
           let self = this;
           axios
             .post(self.GLOBAL.MaxCloudUrl + "/network/remove", data)
@@ -137,8 +137,8 @@ export default {
                     self.tableData.splice(index, 1);
                     return true;
                   }
+                self.$message({message: "请求成功", type: "success"})
                 });
-                self.query_task(data.RespBody.Result.task_id);
               } else {
                 self.$message({
                   message: data.RespHead.Message,

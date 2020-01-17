@@ -16,6 +16,7 @@
               :before-upload="beforeAvatarUpload"
               :before-remove="before_remove"
               :limit="1"
+              :with-credentials="true"
               :on-exceed="handleExceed"
             >
               <i class="el-icon-upload"></i>
