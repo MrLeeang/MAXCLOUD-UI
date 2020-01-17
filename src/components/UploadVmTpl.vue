@@ -1,20 +1,20 @@
 <template>
-  <div class="upload_page">
+  <div>
     <el-row :gutter="20">
-      <el-col :span="6" :offset="9">
-        <el-form ref="form" :model="form" label-width="80px">
+      <el-col :span="8" :offset="8">
+        <el-form ref="form" :model="form" label-width="120px">
           <el-form-item label="模板名称">
             <el-input v-model="form.name"></el-input>
           </el-form-item>
-          <el-form-item label="描述" label-width="80px">
+          <el-form-item label="描述" label-width="120px">
             <el-input type="textarea" v-model="form.desc"></el-input>
           </el-form-item>
-          <el-form-item label="虚拟化类型" label-width="80px">
+          <el-form-item label="虚拟化类型" label-width="120px">
             <el-select v-model="form.vir_type" placeholder="虚拟化类型">
               <el-option label="KVM" value="KVM"></el-option>
             </el-select>
           </el-form-item>
-          <el-form-item label="文件格式" label-width="80px">
+          <el-form-item label="文件格式" label-width="120px">
             <el-select v-model="form.type" placeholder="文件格式">
               <el-option label="qcow2" value="qcow2"></el-option>
               <el-option label="raw" value="raw"></el-option>
@@ -29,7 +29,7 @@
           <el-form-item label="用户密码">
             <el-input v-model="form.login_pass"></el-input>
           </el-form-item>
-          <el-form-item label="节点名称" label-width="80px">
+          <el-form-item label="节点名称" label-width="120px">
             <el-select v-model="form.node_uuid" placeholder="选择节点上传" @change="node_change">
               <el-option
                 v-for="item in nodes"
@@ -39,10 +39,21 @@
               ></el-option>
             </el-select>
           </el-form-item>
+          <el-form-item label="存储名称" label-width="120px">
+            <el-select v-model="form.storage_pool_uuid" placeholder="选择存储上传">
+              <el-option
+                v-for="item in storage_pool"
+                :key="item.name"
+                :label="item.name"
+                :value="item.uuid"
+              ></el-option>
+            </el-select>
+          </el-form-item>
           <el-form-item label="模板文件">
             <el-upload
               class="upload-demo"
               drag
+              ref="upload"
               :action="up_url"
               :on-success="handleAvatarSuccess"
               :on-error="handleAvatarError"
@@ -51,6 +62,7 @@
               :limit="1"
               :on-exceed="handleExceed"
               :data="form"
+              :auto-upload="false"
             >
               <i class="el-icon-upload"></i>
               <div class="el-upload__text">
@@ -70,10 +82,6 @@
   </div>
 </template>
 <style>
-.upload_page .el-form {
-  margin-top: 65px;
-}
-
 .el-form .el-upload__input {
   display: none;
 }
@@ -108,6 +116,7 @@ export default {
     return {
       MaxCloudUrl: "",
       nodes: [],
+      storage_pool: [],
       up_url: "",
       iso_list: "",
       create: false,
@@ -120,8 +129,6 @@ export default {
         login_pass: "",
         node_uuid: "",
         storage_pool_uuid: "",
-        file_path: "",
-        file_name: "",
         desc: ""
       }
     };
@@ -148,51 +155,33 @@ export default {
 
   methods: {
     onSubmit() {
-      console.log(this.upload);
-      if (this.form.file_path && this.form.file_name) {
-        var post_data = {
-          name: this.form.name,
-          file_path: this.form.file_path,
-          file_name: this.form.file_name,
-          desc: this.form.desc
-        };
-        let self = this;
-        axios
-          .post(self.GLOBAL.MaxCloudUrl + "/iso/add", post_data)
-          .then(function(res) {
-            var data = res.data;
-            if (
-              data.RespHead.ErrorCode == 0 &&
-              data.RespHead.Message == "SUCCESS"
-            ) {
-              self.$message({
-                message: data.RespHead.Message,
-                type: "success"
-              });
-              self.create = true;
-            } else {
-              self.$message({
-                message: data.RespHead.Message,
-                type: "warning"
-              });
-            }
-          })
-          .catch(function(error) {
-            // 请求失败处理
-            console.log(error);
-            self.$message.error("系统错误");
-          });
+      if (
+        this.form.name &&
+        this.form.vir_type &&
+        this.form.type &&
+        this.form.os &&
+        this.form.login_user &&
+        this.form.login_pass &&
+        this.form.node_uuid &&
+        this.form.storage_pool_uuid &&
+        this.form.desc
+      ) {
+        this.$refs.upload.submit();
       } else {
-        this.$message.error("请先上传文件");
+        this.$message.error("以上全为必填项");
       }
     },
 
     handleAvatarSuccess(res, file) {
-      // this.imageUrl = URL.createObjectURL(file.raw);
-      if (res.status) {
-        this.form.file_name = res.file_name;
-        this.form.file_path = res.file_path;
-        this.create = false;
+      let self = this;
+      if (res.RespHead.ErrorCode == 0) {
+        self.$message({
+          message: res.RespHead.Message,
+          type: "success"
+        });
+        self.create = true;
+      } else {
+        self.$message.error(res.RespHead.Message);
       }
     },
 
@@ -229,8 +218,38 @@ export default {
       $.each(self.nodes, function(index, node) {
         if (node && node["uuid"] == uuid) {
           self.up_url =
-            "http://"+node["host"] + ":" + self.GLOBAL.MaxCloudPort + "/vm_tpl/upload";
-          console.log(self.up_url)
+            "http://" +
+            node["host"] +
+            ":" +
+            self.GLOBAL.MaxCloudPort +
+            "/vm_tpl/upload";
+
+          self.storage_pool = [];
+          axios
+            .post(self.GLOBAL.MaxCloudUrl + "/storage/query", {
+              node_uuid: uuid
+            })
+            .then(function(res) {
+              var data = res.data;
+              if (
+                data.RespHead.ErrorCode == 0 &&
+                data.RespHead.Message == "SUCCESS"
+              ) {
+                $.each(data.RespBody.Result, function(key, value) {
+                  self.storage_pool.push(value);
+                });
+              } else {
+                self.$message({
+                  message: data.RespHead.Message,
+                  type: "warning"
+                });
+              }
+            })
+            .catch(function(error) {
+              // 请求失败处理
+              console.log(error);
+              self.$message.error("系统错误");
+            });
           return true;
         }
       });

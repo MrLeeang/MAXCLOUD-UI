@@ -118,7 +118,7 @@
   export default {
     data() {
       return {
-        formLabelWidth: "120px"
+        formLabelWidth: "120px",
         iso_list: [],
         add_vm_form: {
           name: '',
