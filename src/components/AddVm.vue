@@ -3,6 +3,9 @@
     <el-form-item label="虚拟机名称" :label-width="formLabelWidth" prop="name">
       <el-input v-model="add_vm_form.name"></el-input>
     </el-form-item>
+    <el-form-item label="虚拟机描述" :label-width="formLabelWidth" prop="desc">
+      <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6}" v-model="add_vm_form.desc"></el-input>
+    </el-form-item>
     <el-form-item label="ISO镜像" :label-width="formLabelWidth" prop="iso">
       <el-select v-model="add_vm_form.iso" placeholder="请选择镜像">
         <el-option v-for="iso in iso_list" :key="iso.name" :label="iso.name" :value="iso.path"></el-option>
@@ -43,26 +46,11 @@
         <el-option label="32G" value="33554432"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="虚拟机描述" :label-width="formLabelWidth" prop="desc">
-      <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6}" v-model="add_vm_form.desc"></el-input>
-    </el-form-item>
     <div v-for="(net_card, index) in add_vm_form.net_cards" :key="index">
-      <el-form-item label="name" :label-width="formLabelWidth">
-        <el-input v-model="net_card.name"></el-input>
-      </el-form-item>
-      <el-form-item label="type" prop="type" :label-width="formLabelWidth">
-        <el-input v-model="net_card.type"></el-input>
-      </el-form-item>
-      <el-form-item label="index" :label-width="formLabelWidth">
-        <el-input v-model="net_card.index"></el-input>
-      </el-form-item>
-      <el-form-item label="mac_address" :label-width="formLabelWidth">
-        <el-input v-model="net_card.mac_address"></el-input>
-      </el-form-item>
       <el-form-item label="是否为DHCP" style="text-align: left" :label-width="formLabelWidth">
         <el-switch v-model="net_card.is_static"></el-switch>
       </el-form-item>
-      <el-form-item label="ip_address" :label-width="formLabelWidth">
+      <el-form-item label="ip地址" :label-width="formLabelWidth">
         <el-input v-model="net_card.ip_address" :disabled="net_card.is_static" autocomplete="off"></el-input>
       </el-form-item>
       <el-form-item label="网关" :label-width="formLabelWidth">
@@ -150,7 +138,7 @@ export default {
         desc: "",
         net_cards: [
           {
-            name: "",
+            name: "网卡1",
             type: "network",
             index: 0,
             is_static: false,
@@ -217,7 +205,7 @@ export default {
       this.add_vm_form.net_cards.push({
         name: "",
         index: "",
-        type: "",
+        type: "network",
         mac_address: "",
         is_static: 0,
         ip_address: "",
@@ -251,10 +239,28 @@ export default {
       }
     },
     resetForm() {
-      this.$refs.add_vm_form.resetFields();
-      this.add_vm_form.net_cards.splice(0);
-      this.add_vm_form.disks.splice(0);
-      this.$message("数据已重置");
+      this.add_vm_form = {
+        name: "",
+        iso: "",
+        vnc_enable: 1,
+        vnc_pass: "",
+        cpu: "",
+        memory: "",
+        desc: "",
+        net_cards: [
+          {
+            name: "网卡1",
+            type: "network",
+            index: 0,
+            is_static: false,
+            ip_address: "",
+            mac_address: "",
+            network: { name: "" }
+          }
+        ],
+        disks: []
+      };
+    this.$message("数据已重置");
     }
   }
 };
