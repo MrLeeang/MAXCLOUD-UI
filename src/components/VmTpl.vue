@@ -90,7 +90,6 @@
           </el-select>
         </el-form-item>
         <div v-for="(net_card, index) in form.net_cards" :key="index">
-
           <el-form-item label="是否为DHCP" style="text-align: left" :label-width="formLabelWidth">
             <el-switch v-model="net_card.is_static"></el-switch>
           </el-form-item>
@@ -119,6 +118,35 @@
           </el-form-item>
         </div>
 
+        <div v-for="(disk, index) in form.disks" :key="index">
+          <el-form-item label="name" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.name"></el-input>
+          </el-form-item>
+          <el-form-item label="type" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.type"></el-input>
+          </el-form-item>
+          <el-form-item label="device" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.device"></el-input>
+          </el-form-item>
+          <el-form-item label="driver_name" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.driver_name"></el-input>
+          </el-form-item>
+          <el-form-item label="driver_type" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.driver_type"></el-input>
+          </el-form-item>
+          <el-form-item label="source_file" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.source_file"></el-input>
+          </el-form-item>
+          <el-form-item label="size" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.size"></el-input>
+          </el-form-item>
+          <el-form-item label="dev" :label-width="formLabelWidth" style="text-align: left">
+            <el-input v-model="disk.dev"></el-input>
+          </el-form-item>
+          <el-form-item :label-width="formLabelWidth" style="text-align: left">
+            <el-button icon="el-icon-delete" @click.prevent="removeDisk(disk)"></el-button>
+          </el-form-item>
+        </div>
         <!-- <el-form-item label="网络名称" :label-width="formLabelWidth">
           <el-select v-model="form.network_name1" placeholder="请选择网络">
             <el-option
@@ -410,11 +438,42 @@ export default {
     },
 
     addNetCard() {
-      this.$message("功能开发中");
+      this.form.net_cards.push({
+        name: "",
+        index: "",
+        type: "network",
+        mac_address: "",
+        is_static: 0,
+        ip_address: "",
+        network: {
+          name: ""
+        }
+      });
+    },
+    addDisk() {
+      this.form.disks.push({
+        name: "",
+        type: "",
+        device: "",
+        driver_name: "",
+        driver_type: "",
+        source_file: "",
+        size: "",
+        dev: ""
+      });
     },
 
-    addDisk() {
-      this.$message("功能开发中");
+    removeDisk(item) {
+      var index = this.form.disks.indexOf(item);
+      if (index !== -1) {
+        this.form.disks.splice(index, 1);
+      }
+    },
+    removeNetCard(item) {
+      var index = this.form.net_cards.indexOf(item);
+      if (index !== -1) {
+        this.form.net_cards.splice(index, 1);
+      }
     }
   }
 };
