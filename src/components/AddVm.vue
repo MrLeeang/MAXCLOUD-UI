@@ -4,15 +4,24 @@
       <el-input v-model="add_vm_form.name"></el-input>
     </el-form-item>
     <el-form-item label="ISO镜像" :label-width="formLabelWidth" prop="iso">
-      <el-select v-model="add_vm_form.iso" placeholder="请选择网络">
-        <el-option v-for="iso in iso_list" :key="iso.name" :label="iso.name" :value="iso.name"></el-option>
+      <el-select v-model="add_vm_form.iso" placeholder="请选择镜像">
+        <el-option v-for="iso in iso_list" :key="iso.name" :label="iso.name" :value="iso.path"></el-option>
       </el-select>
     </el-form-item>
-    <el-form-item label="VNC" :label-width="formLabelWidth" style="text-align: left" prop="vnc_enable">
+    <el-form-item
+      label="VNC"
+      :label-width="formLabelWidth"
+      style="text-align: left"
+      prop="vnc_enable"
+    >
       <el-switch v-model="add_vm_form.vnc_enable"></el-switch>
     </el-form-item>
     <el-form-item label="VNC验证" :label-width="formLabelWidth" prop="vnc_pass">
-      <el-input v-model="add_vm_form.vnc_pass" :disabled="!add_vm_form.vnc_enable" autocomplete="off"></el-input>
+      <el-input
+        v-model="add_vm_form.vnc_pass"
+        :disabled="!add_vm_form.vnc_enable"
+        autocomplete="off"
+      ></el-input>
     </el-form-item>
     <el-form-item label="cpu" :label-width="formLabelWidth" prop="cpu">
       <el-select v-model="add_vm_form.cpu" placeholder="请选择cpu数量">
@@ -38,58 +47,68 @@
       <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6}" v-model="add_vm_form.desc"></el-input>
     </el-form-item>
     <div v-for="(net_card, index) in add_vm_form.net_cards" :key="index">
-      <el-form-item label="name">
+      <el-form-item label="name" :label-width="formLabelWidth">
         <el-input v-model="net_card.name"></el-input>
       </el-form-item>
-      <el-form-item label="type" prop="type">
+      <el-form-item label="type" prop="type" :label-width="formLabelWidth">
         <el-input v-model="net_card.type"></el-input>
       </el-form-item>
-      <el-form-item label="index">
+      <el-form-item label="index" :label-width="formLabelWidth">
         <el-input v-model="net_card.index"></el-input>
       </el-form-item>
-      <el-form-item label="mac_address">
+      <el-form-item label="mac_address" :label-width="formLabelWidth">
         <el-input v-model="net_card.mac_address"></el-input>
       </el-form-item>
-      <el-form-item label="is_static" style="text-align: left">
+      <el-form-item label="是否为DHCP" style="text-align: left" :label-width="formLabelWidth">
         <el-switch v-model="net_card.is_static"></el-switch>
       </el-form-item>
-      <el-form-item label="ip_address">
-        <el-input v-model="net_card.ip_address" :disabled="!net_card.is_static" autocomplete="off"></el-input>
+      <el-form-item label="ip_address" :label-width="formLabelWidth">
+        <el-input v-model="net_card.ip_address" :disabled="net_card.is_static" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item label="network.name">
-        <el-input v-model="net_card.network.name"></el-input>
+      <el-form-item label="网关" :label-width="formLabelWidth">
+        <el-input v-model="net_card.gateway" :disabled="net_card.is_static" autocomplete="off"></el-input>
       </el-form-item>
-      <el-form-item>
+      <el-form-item label="网络名称" :label-width="formLabelWidth">
+        <el-select v-model="net_card.network.name" placeholder="请选择网络">
+          <el-option
+            v-for="item in networks"
+            :key="item.name"
+            :label="item.name"
+            :value="item.name"
+          ></el-option>
+        </el-select>
+      </el-form-item>
+      <el-form-item :label-width="formLabelWidth" style="text-align: left">
         <el-button icon="el-icon-delete" @click.prevent="removeNetCard(net_card)"></el-button>
       </el-form-item>
     </div>
 
     <div v-for="(disk, index) in add_vm_form.disks" :key="index">
-      <el-form-item label="name">
+      <el-form-item label="name" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.name"></el-input>
       </el-form-item>
-      <el-form-item label="type">
+      <el-form-item label="type" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.type"></el-input>
       </el-form-item>
-      <el-form-item label="device">
+      <el-form-item label="device" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.device"></el-input>
       </el-form-item>
-      <el-form-item label="driver_name">
+      <el-form-item label="driver_name" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.driver_name"></el-input>
       </el-form-item>
-      <el-form-item label="driver_type">
+      <el-form-item label="driver_type" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.driver_type"></el-input>
       </el-form-item>
-      <el-form-item label="source_file">
+      <el-form-item label="source_file" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.source_file"></el-input>
       </el-form-item>
-      <el-form-item label="size">
+      <el-form-item label="size" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.size"></el-input>
       </el-form-item>
-      <el-form-item label="dev">
+      <el-form-item label="dev" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.dev"></el-input>
       </el-form-item>
-      <el-form-item>
+      <el-form-item :label-width="formLabelWidth" style="text-align: left">
         <el-button icon="el-icon-delete" @click.prevent="removeDisk(disk)"></el-button>
       </el-form-item>
     </div>
@@ -102,113 +121,141 @@
   </el-form>
 </template>
 <style>
-  .add_vm {
-    text-align: center;
-    width: 40%;
-    color: #99a9bf;
-    position: absolute;
-    left: 30%;
-  }
+.add_vm {
+  text-align: center;
+  width: 40%;
+  color: #99a9bf;
+  position: absolute;
+  left: 30%;
+}
 
-  .el-select {
-    width: 100%;
-  }
+.el-select {
+  width: 100%;
+}
 </style>
 <script>
-  export default {
-    data() {
-      return {
-        formLabelWidth: "120px",
-        iso_list: [],
-        add_vm_form: {
-          name: '',
-          iso: '',
-          vnc_enable: 1,
-          vnc_pass: '',
-          cpu: '',
-          memory: '',
-          desc: '',
-          net_cards: [],
-          disks: []
-        }
+export default {
+  data() {
+    return {
+      formLabelWidth: "120px",
+      iso_list: [],
+      networks: [],
+      add_vm_form: {
+        name: "",
+        iso: "",
+        vnc_enable: 1,
+        vnc_pass: "",
+        cpu: "",
+        memory: "",
+        desc: "",
+        net_cards: [
+          {
+            name: "",
+            type: "network",
+            index: 0,
+            is_static: false,
+            ip_address: "",
+            mac_address: "",
+            network: { name: "" }
+          }
+        ],
+        disks: []
       }
-    },
-    mounted() {
+    };
+  },
+  mounted() {
+    let self = this;
+    self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
+    axios
+      .get(self.GLOBAL.MaxCloudUrl + "/iso/list")
+      .then(function(res) {
+        if (res.data.RespHead.ErrorCode === 1004) {
+          self.$router.push({ path: "/login" });
+        } else {
+          self.iso_list = res.data.RespBody.Result;
+        }
+      })
+      .catch(function(error) {
+        // 请求失败处理
+        console.log(error);
+      });
+
+    axios
+      .get(self.GLOBAL.MaxCloudUrl + "/network/list")
+      .then(function(res) {
+        if (res.data.RespHead.ErrorCode == 1004) {
+          self.$router.push({ path: "/login" });
+        } else {
+          self.networks = res.data.RespBody.Result;
+        }
+      })
+      .catch(function(error) {
+        // 请求失败处理
+        console.log(error);
+      });
+  },
+  methods: {
+    addVM() {
+      let data = this.add_vm_form;
       let self = this;
-      self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
       axios
-        .get(self.GLOBAL.MaxCloudUrl + "/iso/list")
-        .then(function (res) {
-          if (res.data.RespHead.ErrorCode === 1004) {
-            self.$router.push({path: "/login"});
-          } else {
-            self.iso_list = res.data.RespBody.Result;
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/create", data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode === 0 &&
+            data.RespHead.Message === "SUCCESS"
+          ) {
+            this.$message("提交成功");
           }
         })
-        .catch(function (error) {
-          // 请求失败处理
-          console.log(error);
+        .catch(function(error) {
+          alert(error);
         });
     },
-    methods: {
-      addVM() {
-        let data = this.add_vm_form;
-        let self = this;
-        axios
-          .post(self.GLOBAL.MaxCloudUrl + '/vm/create', data)
-          .then(function (res) {
-            var data = res.data;
-            if (data.RespHead.ErrorCode === 0 && data.RespHead.Message === 'SUCCESS') {
-              this.$message("提交成功");
-            }
-          })
-          .catch(function (error) {
-            alert(error)
-          })
-      },
-      addNetCard() {
-        this.add_vm_form.net_cards.push({
-          name: '',
-          index: '',
-          type: '',
-          mac_address: '',
-          is_static: 0,
-          ip_address: '',
-          network: {
-            name: ''
-          },
-        })
-      },
-      addDisk() {
-        this.add_vm_form.disks.push({
-          name: '',
-          type: '',
-          device: '',
-          driver_name: '',
-          driver_type: '',
-          source_file: '',
-          size: '',
-          dev: '',
-        })
-      },
-      removeDisk(item) {
-        var index = this.add_vm_form.disks.indexOf(item);
-        if (index !== -1) {
-          this.add_vm_form.disks.splice(index, 1)
+    addNetCard() {
+      this.add_vm_form.net_cards.push({
+        name: "",
+        index: "",
+        type: "",
+        mac_address: "",
+        is_static: 0,
+        ip_address: "",
+        network: {
+          name: ""
         }
-      },
-      removeNetCard(item) {
-        var index = this.add_vm_form.net_cards.indexOf(item);
-        if (index !== -1) {
-          this.add_vm_form.net_cards.splice(index, 1)
-        }
-      },
-      resetForm() {
-        this.$refs.add_vm_form.resetFields();
-        this.add_vm_form.net_cards.splice(0);
-        this.add_vm_form.disks.splice(0);
-        this.$message("数据已重置");
-      },
+      });
+    },
+    addDisk() {
+      this.add_vm_form.disks.push({
+        name: "",
+        type: "",
+        device: "",
+        driver_name: "",
+        driver_type: "",
+        source_file: "",
+        size: "",
+        dev: ""
+      });
+    },
+    removeDisk(item) {
+      var index = this.add_vm_form.disks.indexOf(item);
+      if (index !== -1) {
+        this.add_vm_form.disks.splice(index, 1);
+      }
+    },
+    removeNetCard(item) {
+      var index = this.add_vm_form.net_cards.indexOf(item);
+      if (index !== -1) {
+        this.add_vm_form.net_cards.splice(index, 1);
+      }
+    },
+    resetForm() {
+      this.$refs.add_vm_form.resetFields();
+      this.add_vm_form.net_cards.splice(0);
+      this.add_vm_form.disks.splice(0);
+      this.$message("数据已重置");
     }
   }
+};
 </script>

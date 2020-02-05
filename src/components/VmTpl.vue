@@ -49,11 +49,8 @@
       <el-table-column label="类型" prop="type" sortable></el-table-column>
       <el-table-column align="right">
         <template slot="header" slot-scope="scope">
-        <el-input
-          v-model="search"
-          size="mini"
-          placeholder="输入关键字搜索"/>
-      </template>
+          <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
+        </template>
         <template slot-scope="scope">
           <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
           <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
@@ -67,12 +64,7 @@
       </el-table-column>
     </el-table>
 
-    <el-dialog
-      title="克隆虚拟机"
-      :visible.sync="dialogFormVisible"
-      top="45px"
-      width="650px"
-    >
+    <el-dialog title="克隆虚拟机" :visible.sync="dialogFormVisible" top="45px" width="650px">
       <el-form :model="form" :label-position="labelPosition">
         <el-form-item label="虚拟机名称" :label-width="formLabelWidth">
           <el-input v-model="form.name" autocomplete="off"></el-input>
@@ -97,8 +89,37 @@
             <el-option label="32" value="33554432"></el-option>
           </el-select>
         </el-form-item>
+        <div v-for="(net_card, index) in form.net_cards" :key="index">
 
-        <el-form-item label="网络名称" :label-width="formLabelWidth">
+          <el-form-item label="是否为DHCP" style="text-align: left" :label-width="formLabelWidth">
+            <el-switch v-model="net_card.is_static"></el-switch>
+          </el-form-item>
+          <el-form-item label="ip地址" :label-width="formLabelWidth">
+            <el-input
+              v-model="net_card.ip_address"
+              :disabled="net_card.is_static"
+              autocomplete="off"
+            ></el-input>
+          </el-form-item>
+          <el-form-item label="网关" :label-width="formLabelWidth">
+            <el-input v-model="net_card.gateway" :disabled="net_card.is_static" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="网络名称" :label-width="formLabelWidth">
+            <el-select v-model="net_card.network.name" placeholder="请选择网络">
+              <el-option
+                v-for="item in networks"
+                :key="item.name"
+                :label="item.name"
+                :value="item.name"
+              ></el-option>
+            </el-select>
+          </el-form-item>
+          <el-form-item :label-width="formLabelWidth" style="text-align: left">
+            <el-button icon="el-icon-delete" @click.prevent="removeNetCard(net_card)"></el-button>
+          </el-form-item>
+        </div>
+
+        <!-- <el-form-item label="网络名称" :label-width="formLabelWidth">
           <el-select v-model="form.network_name1" placeholder="请选择网络">
             <el-option
               v-for="item in networks"
@@ -119,7 +140,7 @@
 
         <el-form-item label="网关" :label-width="formLabelWidth">
           <el-input v-model="form.gateway1" :disabled="form.is_static1" autocomplete="off"></el-input>
-        </el-form-item>
+        </el-form-item>-->
 
         <el-form-item label="VNC" :label-width="formLabelWidth">
           <el-switch v-model="form.vnc"></el-switch>
@@ -185,12 +206,17 @@ export default {
         cpu: "",
         vnc: "",
         disks: [],
-        net_cards: [],
-        ip_address1: "",
-        network_name1: "",
-        net_card_name1: "",
-        gateway1: "",
-        is_static1: false,
+        net_cards: [
+          {
+            name: "网卡1",
+            is_static: false,
+            ip_address: "",
+            mac_address: "",
+            gateway: "",
+            index: 0,
+            network: { name: "" }
+          }
+        ],
         desc: ""
       },
       formLabelWidth: "150px",
@@ -310,13 +336,18 @@ export default {
       this.form.cpu = "";
       this.form.vnc = true;
       this.form.disks = [];
-      this.form.net_cards = [];
+      this.form.net_cards = [
+        {
+          name: "网卡1",
+          is_static: false,
+          ip_address: "",
+          mac_address: "",
+          gateway: "",
+          index: 0,
+          network: { name: "" }
+        }
+      ];
       this.form.desc = "";
-      this.form.ip_address1 = "";
-      this.form.gateway1 = "";
-      this.form.network_name1 = "";
-      this.form.net_card_name1 = "网卡1";
-      this.form.is_static1 = false;
     },
 
     btn_clone() {
@@ -328,26 +359,26 @@ export default {
         desc: this.form.desc,
         cpu: this.form.cpu,
         memory: this.form.mem,
-        net_cards: [],
-        disks: []
+        net_cards: this.form.net_cards,
+        disks: this.form.disks
       };
       if (!this.form.vnc) {
         post_date["vnc_enable"] = 0;
       }
-      var net_card1 = {
-        name: this.form.net_card_name1,
-        index: 0,
-        network: { name: this.form.network_name1 },
-        is_static: 0,
-        ip_address: "",
-        gateway: ""
-      };
-      if (!this.form.is_static1) {
-        net_card1["is_static"] = 1;
-        net_card1["ip_address"] = this.form.ip_address1;
-        net_card1["gateway"] = this.form.gateway1;
-      }
-      post_date["net_cards"].push(net_card1);
+      // var net_card1 = {
+      //   name: this.form.net_card_name1,
+      //   index: 0,
+      //   network: { name: this.form.network_name1 },
+      //   is_static: 0,
+      //   ip_address: "",
+      //   gateway: ""
+      // };
+      // if (!this.form.is_static1) {
+      //   net_card1["is_static"] = 1;
+      //   net_card1["ip_address"] = this.form.ip_address1;
+      //   net_card1["gateway"] = this.form.gateway1;
+      // }
+      // post_date["net_cards"].push(net_card1);
 
       let self = this;
 
