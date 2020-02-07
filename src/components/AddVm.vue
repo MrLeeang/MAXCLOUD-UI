@@ -81,6 +81,7 @@
           <el-input v-model="disk.size"></el-input>
         </el-form-item>
         <el-input type="hidden" v-model="disk.driver_type" value="qcow2"></el-input>
+        <el-input type="hidden" v-model="disk.source_file" :value="uuidv1()"></el-input>
       </div>
       <div v-if="disk.device=='cdrom'">
         <el-form-item label="ISO镜像" :label-width="formLabelWidth">
@@ -130,7 +131,6 @@ export default {
       networks: [],
       add_vm_form: {
         name: "",
-        iso: "",
         vnc_enable: 1,
         vnc_pass: "",
         cpu: "",
@@ -253,7 +253,6 @@ export default {
     resetForm() {
       this.add_vm_form = {
         name: "",
-        iso: "",
         vnc_enable: 1,
         vnc_pass: "",
         cpu: "",
