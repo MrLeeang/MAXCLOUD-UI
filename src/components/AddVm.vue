@@ -80,9 +80,9 @@
         <el-form-item label="磁盘大小" :label-width="formLabelWidth" style="text-align: left">
           <el-input v-model="disk.size"></el-input>
         </el-form-item>
-        <el-input type="hidden" v-model="disk.driver_type" value="qcow2"></el-input>
         <el-input type="hidden" v-model="disk.source_file" :value="uuidv1()"></el-input>
       </div>
+
       <div v-if="disk.device=='cdrom'">
         <el-form-item label="ISO镜像" :label-width="formLabelWidth">
           <el-select v-model="disk.source_file" placeholder="请选择镜像">
@@ -94,7 +94,6 @@
             ></el-option>
           </el-select>
         </el-form-item>
-        <el-input type="hidden" v-model="disk.driver_type" value="raw"></el-input>
       </div>
       <el-form-item :label-width="formLabelWidth" style="text-align: left">
         <el-button icon="el-icon-delete" @click.prevent="removeDisk(disk)"></el-button>
@@ -126,6 +125,7 @@ import uuidv1 from "uuid/v1";
 export default {
   data() {
     return {
+      uuidv1: uuidv1,
       formLabelWidth: "120px",
       iso_list: [],
       networks: [],
@@ -195,9 +195,42 @@ export default {
       });
   },
   methods: {
+    query_task(uuid) {
+      let self = this;
+      axios
+        .get(self.GLOBAL.MaxCloudUrl + "/task?uuid=" + uuid)
+        .then(function(res) {
+          if (
+            res.data.RespBody.Result.status != "PENDING" &&
+            res.data.RespBody.Result.status != "DEFAULT"
+          ) {
+            if (res.data.RespBody.Result.status == "SUCCESS") {
+              self.$message({
+                message: res.data.RespBody.Result.message,
+                type: "success"
+              });
+            } else {
+              self.$message.error(res.data.RespBody.Result.message);
+            }
+          } else {
+            self.query_task(uuid);
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          self.$.message.error(error);
+        });
+    },
+
     addVM() {
       let data = this.add_vm_form;
       let self = this;
+      $.each(data.disks, function(index, disk_data){
+        if (disk_data.device == 'cdrom'){
+          data.disks[index].driver_type = 'raw';
+          data.disks[index].size = '';
+        }
+      })
       axios
         .post(self.GLOBAL.MaxCloudUrl + "/vm/create", data)
         .then(function(res) {
@@ -206,11 +239,12 @@ export default {
             data.RespHead.ErrorCode === 0 &&
             data.RespHead.Message === "SUCCESS"
           ) {
-            this.$message("提交成功");
+            self.query_task(data.RespBody.Result.task_id);
           }
         })
         .catch(function(error) {
-          alert(error);
+          console.log(error);
+          self.$message.error('系统错误');
         });
     },
     addNetCard() {
@@ -234,7 +268,7 @@ export default {
         driver_name: "qemu",
         driver_type: "qcow2",
         source_file: uuidv1(),
-        size: "",
+        size: "40",
         dev: ""
       });
     },
