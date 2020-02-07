@@ -6,11 +6,6 @@
     <el-form-item label="虚拟机描述" :label-width="formLabelWidth" prop="desc">
       <el-input type="textarea" :autosize="{ minRows: 2, maxRows: 6}" v-model="add_vm_form.desc"></el-input>
     </el-form-item>
-    <el-form-item label="ISO镜像" :label-width="formLabelWidth" prop="iso">
-      <el-select v-model="add_vm_form.iso" placeholder="请选择镜像">
-        <el-option v-for="iso in iso_list" :key="iso.name" :label="iso.name" :value="iso.path"></el-option>
-      </el-select>
-    </el-form-item>
     <el-form-item
       label="VNC"
       :label-width="formLabelWidth"
@@ -46,7 +41,7 @@
         <el-option label="32G" value="33554432"></el-option>
       </el-select>
     </el-form-item>
-    <div v-for="(net_card, index) in add_vm_form.net_cards" :key="index">
+    <div v-for="(net_card, index) in add_vm_form.net_cards" :key="'nc'+index">
       <el-form-item label="是否为DHCP" style="text-align: left" :label-width="formLabelWidth">
         <el-switch v-model="net_card.is_static"></el-switch>
       </el-form-item>
@@ -72,30 +67,34 @@
     </div>
 
     <div v-for="(disk, index) in add_vm_form.disks" :key="index">
-      <el-form-item label="name" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.name"></el-input>
-      </el-form-item>
-      <el-form-item label="type" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.type"></el-input>
-      </el-form-item>
-      <el-form-item label="device" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.device"></el-input>
-      </el-form-item>
-      <el-form-item label="driver_name" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.driver_name"></el-input>
-      </el-form-item>
-      <el-form-item label="driver_type" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.driver_type"></el-input>
-      </el-form-item>
-      <el-form-item label="source_file" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.source_file"></el-input>
-      </el-form-item>
-      <el-form-item label="size" :label-width="formLabelWidth" style="text-align: left">
-        <el-input v-model="disk.size"></el-input>
-      </el-form-item>
-      <el-form-item label="dev" :label-width="formLabelWidth" style="text-align: left">
+      <el-form-item label="设备编号" :label-width="formLabelWidth" style="text-align: left">
         <el-input v-model="disk.dev"></el-input>
       </el-form-item>
+      <el-form-item label="设备类型" :label-width="formLabelWidth" style="text-align: left">
+        <el-select v-model="disk.device" placeholder="选择设备类型">
+          <el-option label="光盘" value="cdrom"></el-option>
+          <el-option label="磁盘" value="disk"></el-option>
+        </el-select>
+      </el-form-item>
+      <div v-if="disk.device=='disk'">
+        <el-form-item label="磁盘大小" :label-width="formLabelWidth" style="text-align: left">
+          <el-input v-model="disk.size"></el-input>
+        </el-form-item>
+        <el-input type="hidden" v-model="disk.driver_type" value="qcow2"></el-input>
+      </div>
+      <div v-if="disk.device=='cdrom'">
+        <el-form-item label="ISO镜像" :label-width="formLabelWidth">
+          <el-select v-model="disk.source_file" placeholder="请选择镜像">
+            <el-option
+              v-for="iso in iso_list"
+              :key="iso.name"
+              :label="iso.name"
+              :value="iso.source"
+            ></el-option>
+          </el-select>
+        </el-form-item>
+        <el-input type="hidden" v-model="disk.driver_type" value="raw"></el-input>
+      </div>
       <el-form-item :label-width="formLabelWidth" style="text-align: left">
         <el-button icon="el-icon-delete" @click.prevent="removeDisk(disk)"></el-button>
       </el-form-item>
@@ -122,6 +121,7 @@
 }
 </style>
 <script>
+import uuidv1 from "uuid/v1";
 export default {
   data() {
     return {
@@ -147,7 +147,18 @@ export default {
             network: { name: "" }
           }
         ],
-        disks: []
+        disks: [
+          {
+            name: "disk1",
+            type: "file",
+            device: "disk",
+            driver_name: "qemu",
+            driver_type: "qcow2",
+            source_file: uuidv1(),
+            size: "40",
+            dev: "hda"
+          }
+        ]
       }
     };
   },
@@ -161,6 +172,7 @@ export default {
           self.$router.push({ path: "/login" });
         } else {
           self.iso_list = res.data.RespBody.Result;
+          console.log(self.iso_list);
         }
       })
       .catch(function(error) {
@@ -207,7 +219,7 @@ export default {
         index: "",
         type: "network",
         mac_address: "",
-        is_static: 0,
+        is_static: false,
         ip_address: "",
         network: {
           name: ""
@@ -217,11 +229,11 @@ export default {
     addDisk() {
       this.add_vm_form.disks.push({
         name: "",
-        type: "",
-        device: "",
-        driver_name: "",
-        driver_type: "",
-        source_file: "",
+        type: "file",
+        device: "disk",
+        driver_name: "qemu",
+        driver_type: "qcow2",
+        source_file: uuidv1(),
         size: "",
         dev: ""
       });
@@ -258,9 +270,20 @@ export default {
             network: { name: "" }
           }
         ],
-        disks: []
+        disks: [
+          {
+            name: "disk1",
+            type: "file",
+            device: "disk",
+            driver_name: "qemu",
+            driver_type: "qcow2",
+            source_file: uuidv1(),
+            size: "40",
+            dev: "hda"
+          }
+        ]
       };
-    this.$message("数据已重置");
+      this.$message("数据已重置");
     }
   }
 };
