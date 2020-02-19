@@ -117,7 +117,7 @@ export default {
         type: "warning"
       })
         .then(() => {
-          let data = [{ uuid: uuid }];
+          let data = { uuid: uuid };
           let self = this;
           axios
             .post(self.GLOBAL.MaxCloudUrl + "/node/remove", data)

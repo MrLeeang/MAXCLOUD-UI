@@ -1,10 +1,13 @@
 <template>
   <el-form ref="add_node" :model="add_node" :rules="rules" label-width="80px" class="add_node">
-    <el-form-item label="主机地址" prop="host">
-      <el-input v-model="add_node.host"/>
+    <el-form-item label="主机名称" prop="agent">
+      <el-input v-model="add_node.agent" />
     </el-form-item>
-    <el-form-item label="管理地址" prop="agent">
-      <el-input v-model="add_node.agent"/>
+    <el-form-item label="主机地址" prop="host">
+      <el-input v-model="add_node.host" />
+    </el-form-item>
+    <el-form-item label="管理地址" prop="manage_ip">
+      <el-input v-model="add_node.manage_ip" />
     </el-form-item>
     <el-form-item>
       <el-button type="primary" @click="node_register('add_node')">添加</el-button>
@@ -13,14 +16,13 @@
   </el-form>
 </template>
 <style>
-  .add_node {
-    text-align: center;
-    width: 40%;
-    color: #99a9bf;
-    position: absolute;
-    left: 30%;
-  }
-
+.add_node {
+  text-align: center;
+  width: 40%;
+  color: #99a9bf;
+  position: absolute;
+  left: 30%;
+}
 </style>
 <script>
   export default {
@@ -28,7 +30,8 @@
       return {
         add_node: {
           host: '',
-          agent: ''
+          agent: '',
+          manage_ip: ''
         },
         rules: {
           host: [
@@ -36,6 +39,9 @@
           ],
           agent: [
             {required: true, message: '请输入agent', trigger: 'blur'}
+          ],
+          manage_ip: [
+            {required: true, message: '请输入manage_ip', trigger: 'blur'}
           ]
         }
       }
