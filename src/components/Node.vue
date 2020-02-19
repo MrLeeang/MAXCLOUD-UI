@@ -133,7 +133,11 @@ export default {
                     return true;
                   }
                 });
-                self.query_task(data.RespBody.Result.task_id);
+                // self.query_task(data.RespBody.Result.task_id);
+                self.$message({
+                  message: data.RespHead.Message,
+                  type: "success"
+                });
               } else {
                 self.$message({
                   message: data.RespHead.Message,
