@@ -486,9 +486,9 @@ export default {
                 ) {
                   $.each(self.tableData, function(index, tmp_data) {
                     if (tmp_data && tmp_data["uuid"] == row.firewall_uuid) {
-                      $.each(tmp_data, function(i, t) {
+                      $.each(tmp_data.children, function(i, t) {
                         if (t && t["uuid"] == row.uuid) {
-                          self.tableData[index].splice(i, 1);
+                          self.tableData[index].children.splice(i, 1);
                           return true;
                         }
                       });
