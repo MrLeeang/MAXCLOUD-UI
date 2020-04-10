@@ -222,6 +222,22 @@
                 >快照管理</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
+                <el-button
+                  icon="el-icon-switch-button"
+                  size="mini"
+                  type="text"
+                  @click="poweron(scope.row.uuid)"
+                >开机</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-switch-button"
+                  size="mini"
+                  type="text"
+                  @click="poweroff(scope.row.uuid)"
+                >关机</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
                 <el-link
                   :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
                   target="_blank"
@@ -299,7 +315,10 @@
                   <p>名称: {{ scope.row.name }}</p>
                   <p>描述: {{ scope.row.desc }}</p>
                   <div slot="reference" class="name-wrapper">
-                    <el-tag size="medium" :type="vm_data.this_snapshot == scope.row.uuid ? 'success':'info'">{{ scope.row.name }}</el-tag>
+                    <el-tag
+                      size="medium"
+                      :type="vm_data.this_snapshot == scope.row.uuid ? 'success':'info'"
+                    >{{ scope.row.name }}</el-tag>
                   </div>
                 </el-popover>
               </template>
@@ -550,7 +569,7 @@ export default {
       this.snapshotdialogFormVisible = true;
     },
 
-    revert_snapshot(data){
+    revert_snapshot(data) {
       let self = this;
       let form_data = data;
       axios
@@ -574,9 +593,9 @@ export default {
           console.log(error);
           self.$message.error("系统错误");
         });
-    }, 
+    },
 
-    delete_snapshot(snap_index, data){
+    delete_snapshot(snap_index, data) {
       let self = this;
       let form_data = data;
       axios
@@ -588,10 +607,7 @@ export default {
             data.RespHead.Message == "SUCCESS"
           ) {
             $.each(self.tableData, function(index, vm_data) {
-              if (
-                vm_data &&
-                vm_data.uuid == form_data.vm_uuid
-              ) {
+              if (vm_data && vm_data.uuid == form_data.vm_uuid) {
                 self.tableData[index]["snapshots"].splice(snap_index, 1);
                 return true;
               }
@@ -640,6 +656,66 @@ export default {
           }, 2000);
         })
         .catch(_ => {});
+    },
+
+    poweron(vm_uuid) {
+      let self = this;
+      let form_data = [
+        {
+          uuid: vm_uuid
+        }
+      ];
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/start", form_data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
+    },
+
+    poweroff(vm_uuid) {
+      let self = this;
+      let form_data = [
+        {
+          uuid: vm_uuid
+        }
+      ];
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/destroy", form_data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
     },
 
     cancelForm() {
