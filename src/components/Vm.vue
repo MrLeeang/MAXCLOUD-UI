@@ -238,6 +238,14 @@
                 >关机</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
+                <el-button
+                  icon="el-icon-upload2"
+                  size="mini"
+                  type="text"
+                  @click="up_tpl(scope.row.uuid)"
+                >提交为模板</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
                 <el-link
                   :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
                   target="_blank"
@@ -296,6 +304,21 @@
       <div slot="footer" class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取 消</el-button>
         <el-button type="primary" @click="btn_add_snapshot">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="保存为模板" :visible.sync="uptpldialogFormVisible" top="45px" width="650px">
+      <el-form :model="up_tpl_data" :label-position="labelPosition">
+        <el-form-item label="快照名称" :label-width="formLabelWidth">
+          <el-input v-model="up_tpl_data.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" :label-width="formLabelWidth">
+          <el-input type="textarea" v-model="up_tpl_data.desc"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="btn_up_tpl">确 定</el-button>
       </div>
     </el-dialog>
 
@@ -405,10 +428,16 @@ export default {
       tableData: [],
       search: "",
       dialogFormVisible: false,
+      uptpldialogFormVisible: false,
       snapshotdialogFormVisible: false,
       labelPosition: "left",
       error_messages: "",
       this_vm_uuid: "",
+      up_tpl_data: {
+        vm_uuid: "",
+        name: "",
+        desc: "",
+      },
       loading: true,
       add_snapshot_form: {
         vm_uuid: "",
@@ -656,6 +685,38 @@ export default {
           }, 2000);
         })
         .catch(_ => {});
+    },
+
+    up_tpl(vm_uuid){
+      this.uptpldialogFormVisible=true;
+      this.up_tpl_data.vm_uuid = vm_uuid;
+    },
+
+    btn_up_tpl(){
+      let self = this;
+      let form_data = this.up_tpl_data;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/vm_tpl/save", form_data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.uptpldialogFormVisible=false;
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
     },
 
     poweron(vm_uuid) {
