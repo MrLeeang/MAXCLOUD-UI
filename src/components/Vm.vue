@@ -194,23 +194,48 @@
           <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
         </template>
         <template slot-scope="scope">
-          <el-button size="mini" @click="handleEdit(scope.row)" icon="el-icon-edit"></el-button>
-          <el-button
-            size="mini"
-            type="danger"
-            @click="remove(scope.row.uuid)"
-            icon="el-icon-delete"
-          ></el-button>
-          <el-link
-            style="margin-left: 10px;"
-            :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
-            target="_blank"
-            icon="el-icon-connection"
-            :underline="false"
-          >VNC</el-link>
+          <el-dropdown size="mini" split-button type="danger" @click="remove(scope.row.uuid)">
+            删除
+            <el-dropdown-menu slot="dropdown">
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-edit"
+                  size="mini"
+                  type="text"
+                  @click="handleEdit(scope.row)"
+                >编辑</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-document-copy"
+                  size="mini"
+                  type="text"
+                  @click="addsnapshot(scope.row.uuid)"
+                >创建快照</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-remove-outline"
+                  size="mini"
+                  type="text"
+                  @click="snapshotshow(scope.row.uuid)"
+                >快照管理</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-link
+                  :href="MaxCloudUrl+'/vnc?token='+scope.row.vnc_token"
+                  target="_blank"
+                  size="mini"
+                  icon="el-icon-connection"
+                  :underline="false"
+                >VNC</el-link>
+              </el-dropdown-item>
+            </el-dropdown-menu>
+          </el-dropdown>
         </template>
       </el-table-column>
     </el-table>
+
     <el-drawer
       title="编辑"
       :before-close="handleClose"
@@ -218,7 +243,7 @@
       direction="rtl"
       custom-class="demo-drawer"
       ref="drawer"
-      size=40%
+      size="40%"
     >
       <div class="demo-drawer__content">
         <el-form :model="editform">
@@ -242,32 +267,83 @@
         </div>
       </div>
     </el-drawer>
+
+    <el-dialog title="创建虚拟机快照" :visible.sync="dialogFormVisible" top="45px" width="650px">
+      <el-form :model="add_snapshot_form" :label-position="labelPosition">
+        <el-form-item label="快照名称" :label-width="formLabelWidth">
+          <el-input v-model="add_snapshot_form.name" autocomplete="off"></el-input>
+        </el-form-item>
+        <el-form-item label="描述" :label-width="formLabelWidth">
+          <el-input type="textarea" v-model="add_snapshot_form.desc"></el-input>
+        </el-form-item>
+      </el-form>
+      <div slot="footer" class="dialog-footer">
+        <el-button @click="dialogFormVisible = false">取 消</el-button>
+        <el-button type="primary" @click="btn_add_snapshot">确 定</el-button>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="快照管理" :visible.sync="snapshotdialogFormVisible" top="45px" width="650px">
+      <div v-for="(vm_data, index) in tableData" :key="index">
+        <div v-if="vm_data.uuid == this_vm_uuid">
+          <el-table :data="vm_data.snapshots" style="width: 100%">
+            <el-table-column label="日期" width="180">
+              <template slot-scope="scope">
+                <i class="el-icon-time"></i>
+                <span style="margin-left: 10px">{{ scope.row.create_time }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="名称" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>名称: {{ scope.row.name }}</p>
+                  <p>描述: {{ scope.row.desc }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag size="medium" :type="vm_data.this_snapshot == scope.row.uuid ? 'success':'info'">{{ scope.row.name }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot-scope="scope">
+                <el-button size="mini" @click="revert_snapshot(scope.row)">恢复</el-button>
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="delete_snapshot(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </el-dialog>
   </div>
 </template>
 
 <style>
-.el-drawer__header>:first-child {
-    -webkit-box-flex: 1;
-    -ms-flex: 1;
-    flex: 1;
-    font-size: 25px;
+.el-drawer__header > :first-child {
+  -webkit-box-flex: 1;
+  -ms-flex: 1;
+  flex: 1;
+  font-size: 25px;
 }
 .demo-drawer__content form {
-    flex: 1;
+  flex: 1;
 }
 .demo-drawer__content {
-    display: flex;
-    flex-direction: column;
-    height: 100%;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
 }
 .el-drawer__body {
-    padding: 20px;
+  padding: 20px;
 }
 .demo-drawer__footer {
-    display: flex;
+  display: flex;
 }
 .demo-drawer__footer button {
-    flex: 1;
+  flex: 1;
 }
 .demo-table-expand .el-form-item .el-form label {
   width: 135px;
@@ -301,7 +377,6 @@
   margin-bottom: 0;
   width: 49%;
 }
-
 </style>
 
 <script>
@@ -310,22 +385,31 @@ export default {
     return {
       tableData: [],
       search: "",
+      dialogFormVisible: false,
+      snapshotdialogFormVisible: false,
+      labelPosition: "left",
       error_messages: "",
+      this_vm_uuid: "",
       loading: true,
+      add_snapshot_form: {
+        vm_uuid: "",
+        name: "",
+        desc: ""
+      },
       editloading: false,
       handleEditDis: false,
       timer: null,
-      formLabelWidth: '80px',
+      formLabelWidth: "80px",
       editform: {
-        name: '',
-        region: '',
-        date1: '',
-        date2: '',
+        name: "",
+        region: "",
+        date1: "",
+        date2: "",
         delivery: false,
         type: [],
-        resource: '',
-        desc: ''
-      },
+        resource: "",
+        desc: ""
+      }
     };
   },
   mounted() {
@@ -416,27 +500,138 @@ export default {
         });
     },
 
+    addsnapshot(vm_uuid) {
+      this.add_snapshot_form = {
+        vm_uuid: vm_uuid,
+        name: "",
+        desc: ""
+      };
+      this.dialogFormVisible = true;
+    },
+
+    btn_add_snapshot() {
+      let self = this;
+      let data = self.add_snapshot_form;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/snapshot/add", data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            $.each(self.tableData, function(index, vm_data) {
+              if (
+                vm_data &&
+                vm_data["uuid"] == self.add_snapshot_form["vm_uuid"]
+              ) {
+                self.tableData[index]["snapshots"].push(self.add_snapshot_form);
+                self.dialogFormVisible = false;
+                return true;
+              }
+            });
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
+    },
+
+    snapshotshow(vm_uuid) {
+      this.this_vm_uuid = vm_uuid;
+      this.snapshotdialogFormVisible = true;
+    },
+
+    revert_snapshot(data){
+      let self = this;
+      let form_data = data;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/snapshot/revert", form_data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
+    }, 
+
+    delete_snapshot(snap_index, data){
+      let self = this;
+      let form_data = data;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/snapshot/remove", form_data)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            $.each(self.tableData, function(index, vm_data) {
+              if (
+                vm_data &&
+                vm_data.uuid == form_data.vm_uuid
+              ) {
+                self.tableData[index]["snapshots"].splice(snap_index, 1);
+                return true;
+              }
+            });
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
+    },
+
     handleEdit(data) {
       this.handleEditDis = true;
     },
 
-    submitEdit(){
-      this.error_messages="功能正在开发中"
-      return false
+    submitEdit() {
+      this.error_messages = "功能正在开发中";
+      return false;
     },
 
     handleClose(done) {
       if (this.editloading) {
         return;
       }
-      this.$confirm('确定要提交表单吗？')
+      this.$confirm("确定要提交表单吗？")
         .then(_ => {
           this.editloading = true;
           this.timer = setTimeout(() => {
-            if (this.submitEdit()){
+            if (this.submitEdit()) {
               done();
-            }else{
-              this.$message(this.error_messages)
+            } else {
+              this.$message(this.error_messages);
             }
             // 动画关闭需要一定的时间
             setTimeout(() => {
