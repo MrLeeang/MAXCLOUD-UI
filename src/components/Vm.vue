@@ -182,7 +182,7 @@
           </el-form>
         </template>
       </el-table-column>
-      <el-table-column label="服务器名称" prop="name" sortable></el-table-column>
+      <el-table-column label="虚拟机名称" prop="name" sortable></el-table-column>
       <el-table-column label="系统" prop="os" sortable></el-table-column>
       <el-table-column label="系统内存" prop="memory" sortable></el-table-column>
       <el-table-column label="系统cpu" prop="cpu" sortable></el-table-column>
