@@ -844,24 +844,24 @@ export default {
     },
 
     add_nc() {
-      this.error_messages = "功能正在开发中";
+      this.$message.error("功能正在开发中");
       let vm_uuid = this.this_vm_uuid
       return false;
     },
 
     delete_nc(nc_index, data) {
-      this.error_messages = "功能正在开发中";
+      this.$message.error("功能正在开发中");
       return false;
     },
 
     add_disk() {
-      this.error_messages = "功能正在开发中";
+      this.$message.error("功能正在开发中");
       let vm_uuid = this.this_vm_uuid
       return false;
     },
 
     delete_disk(nc_index, data) {
-      this.error_messages = "功能正在开发中";
+      this.$message.error("功能正在开发中");
       return false;
     },
 
