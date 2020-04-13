@@ -74,7 +74,7 @@
             <el-form-item label="描述">
               <span>{{ props.row.desc }}</span>
             </el-form-item>
-            <el-form-item label="磁盘">
+            <!-- <el-form-item label="磁盘">
               <el-form inline v-for="(item,index) in props.row.disks" :key="index">
                 <el-form-item label="uuid">
                   <span>{{ item.uuid }}</span>
@@ -107,8 +107,8 @@
                   <span>{{ item.type }}</span>
                 </el-form-item>
               </el-form>
-            </el-form-item>
-            <el-form-item label="网卡">
+            </el-form-item> -->
+            <!-- <el-form-item label="网卡">
               <el-form inline v-for="(item,index) in props.row.net_cards" :key="index">
                 <el-form-item label="uuid">
                   <span>{{ item.uuid }}</span>
@@ -162,8 +162,8 @@
                   <span>{{ item.network.desc }}</span>
                 </el-form-item>
               </el-form>
-            </el-form-item>
-            <el-form-item label="快照">
+            </el-form-item>  -->
+            <!-- <el-form-item label="快照">
               <el-form inline v-for="(item,index) in props.row.snapshots" :key="index">
                 <el-form-item label="uuid">
                   <span>{{ item.uuid }}</span>
@@ -178,7 +178,7 @@
                   <span>{{ item.create_time }}</span>
                 </el-form-item>
               </el-form>
-            </el-form-item>
+            </el-form-item> -->
           </el-form>
         </template>
       </el-table-column>
@@ -220,6 +220,22 @@
                   type="text"
                   @click="snapshotshow(scope.row.uuid)"
                 >快照管理</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-remove-outline"
+                  size="mini"
+                  type="text"
+                  @click="nc_show(scope.row.uuid)"
+                >网卡管理</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
+                  icon="el-icon-remove-outline"
+                  size="mini"
+                  type="text"
+                  @click="disk_show(scope.row.uuid)"
+                >硬盘管理</el-button>
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
@@ -360,6 +376,159 @@
         </div>
       </div>
     </el-dialog>
+
+    <el-dialog title="网卡管理" :visible.sync="ncdialogFormVisible" top="45px" width="1100px">
+      <div v-for="(vm_data, index) in tableData" :key="index">
+        <div v-if="vm_data.uuid == this_vm_uuid">
+          <el-table :data="vm_data.net_cards" style="width: 100%">
+            <el-table-column label="索引" width="180">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.index }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="名称" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>uuid: {{ scope.row.uuid }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag
+                      size="medium"
+                      type="info"
+                    >{{ scope.row.name }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="mac地址" width="180">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.mac_address }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="ip地址" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>是否为静态: {{ scope.row.is_static }}</p>
+                  <p>掩码: {{ scope.row.net_mask }}</p>
+                  <p>网关: {{ scope.row.gateway }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag
+                      size="medium"
+                      type="info"
+                    >{{ scope.row.ip_address }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="网络" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>网络uuid: {{ scope.row.network_uuid }}</p>
+                  <p>网络vlan: {{ scope.row.network.vlan_id }}</p>
+                  <p>开启dhcp: {{ scope.row.network.is_dhcp }}</p>
+                  <p>网络是否删除: {{ scope.row.network.is_delete }}</p>
+                  <p>网络虚拟化: {{ scope.row.network.virtual_port_type }}</p>
+                  <p>网络描述: {{ scope.row.network.desc }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag
+                      size="medium"
+                      type="info"
+                    >{{ scope.row.network.name }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot="header">
+                <el-button
+                  icon="el-icon-edit"
+                  size="mini"
+                  type="text"
+                  @click="add_nc()"
+                >添加网卡</el-button>
+            </template>
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="delete_nc(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </el-dialog>
+
+    <el-dialog title="硬盘管理" :visible.sync="diskdialogFormVisible" top="45px" width="1050px">
+      <div v-for="(vm_data, index) in tableData" :key="index">
+        <div v-if="vm_data.uuid == this_vm_uuid">
+          <el-table :data="vm_data.disks" style="width: 100%">
+            <el-table-column label="名称" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>uuid: {{ scope.row.uuid }}</p>
+                  <p>存储: {{ scope.row.storage_pool_uuid }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag
+                      size="medium"
+                      type="info"
+                    >{{ scope.row.name }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="设备编号" width="180">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.dev }}</span>
+              </template>
+            </el-table-column>
+             <el-table-column label="源文件" width="180" :show-overflow-tooltip="true">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.source_file }}</span>
+              </template>
+            </el-table-column>
+             <el-table-column label="硬盘大小" width="180">
+              <template slot-scope="scope">
+                <span style="margin-left: 10px">{{ scope.row.size }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column label="设备" width="180">
+              <template slot-scope="scope">
+                <el-popover trigger="hover" placement="top">
+                  <p>driver_name: {{ scope.row.driver_name }}</p>
+                  <p>driver_type: {{ scope.row.driver_type }}</p>
+                  <p>type: {{ scope.row.type }}</p>
+                  <div slot="reference" class="name-wrapper">
+                    <el-tag
+                      size="medium"
+                      type="info"
+                    >{{ scope.row.device }}</el-tag>
+                  </div>
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column label="操作">
+              <template slot="header">
+                <el-button
+                  icon="el-icon-edit"
+                  size="mini"
+                  type="text"
+                  @click="add_disk()"
+                >添加硬盘</el-button>
+            </template>
+              <template slot-scope="scope">
+                <el-button
+                  size="mini"
+                  type="danger"
+                  @click="delete_disk(scope.$index, scope.row)"
+                >删除</el-button>
+              </template>
+            </el-table-column>
+          </el-table>
+        </div>
+      </div>
+    </el-dialog>
+
   </div>
 </template>
 
@@ -430,6 +599,8 @@ export default {
       dialogFormVisible: false,
       uptpldialogFormVisible: false,
       snapshotdialogFormVisible: false,
+      ncdialogFormVisible: false,
+      diskdialogFormVisible: false,
       labelPosition: "left",
       error_messages: "",
       this_vm_uuid: "",
@@ -598,6 +769,16 @@ export default {
       this.snapshotdialogFormVisible = true;
     },
 
+    nc_show(vm_uuid) {
+      this.this_vm_uuid = vm_uuid;
+      this.ncdialogFormVisible = true;
+    },
+
+    disk_show(vm_uuid) {
+      this.this_vm_uuid = vm_uuid;
+      this.diskdialogFormVisible = true;
+    },
+
     revert_snapshot(data) {
       let self = this;
       let form_data = data;
@@ -609,6 +790,12 @@ export default {
             data.RespHead.ErrorCode == 0 &&
             data.RespHead.Message == "SUCCESS"
           ) {
+            $.each(self.tableData, function(index, vm_data) {
+              if (vm_data && vm_data.uuid == form_data.vm_uuid) {
+                self.tableData[index]["this_snapshot"] = form_data.uuid;
+                return true;
+              }
+            });
             self.query_task(data.RespBody.Result.task_id);
           } else {
             self.$message({
@@ -654,6 +841,28 @@ export default {
           console.log(error);
           self.$message.error("系统错误");
         });
+    },
+
+    add_nc() {
+      this.error_messages = "功能正在开发中";
+      let vm_uuid = this.this_vm_uuid
+      return false;
+    },
+
+    delete_nc(nc_index, data) {
+      this.error_messages = "功能正在开发中";
+      return false;
+    },
+
+    add_disk() {
+      this.error_messages = "功能正在开发中";
+      let vm_uuid = this.this_vm_uuid
+      return false;
+    },
+
+    delete_disk(nc_index, data) {
+      this.error_messages = "功能正在开发中";
+      return false;
     },
 
     handleEdit(data) {
