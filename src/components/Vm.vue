@@ -325,7 +325,7 @@
 
     <el-dialog title="保存为模板" :visible.sync="uptpldialogFormVisible" top="45px" width="650px">
       <el-form :model="up_tpl_data" :label-position="labelPosition">
-        <el-form-item label="快照名称" :label-width="formLabelWidth">
+        <el-form-item label="模板名称" :label-width="formLabelWidth">
           <el-input v-model="up_tpl_data.name" autocomplete="off"></el-input>
         </el-form-item>
         <el-form-item label="描述" :label-width="formLabelWidth">
