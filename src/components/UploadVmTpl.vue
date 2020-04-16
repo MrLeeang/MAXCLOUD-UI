@@ -208,9 +208,9 @@ export default {
       // if (!iso) {
       //   this.$message.error("上传文件只能是 iso 格式!");
       // }
-      if (!isLt3G) {
-        this.$message.error("上传文件大小不能超过 5G!");
-      }
+      // if (!isLt3G) {
+      //   this.$message.error("上传文件大小不能超过 5G!");
+      // }
       return isLt3G;
     },
 
