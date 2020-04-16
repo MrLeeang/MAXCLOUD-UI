@@ -37,8 +37,28 @@
         <el-input v-model="search" size="mini" placeholder="输入关键字搜索" />
       </template>
       <template slot-scope="scope">
-        <el-button size="mini" @click="handleEdit(scope.row)">编辑</el-button>
-        <el-button size="mini" type="danger" @click="remove(scope.row.uuid)">删除</el-button>
+        <el-dropdown size="mini" split-button type="danger" @click="remove(scope.row.uuid)">
+          删除
+          <el-dropdown-menu slot="dropdown">
+            <el-dropdown-item>
+              <el-button
+                icon="el-icon-edit"
+                size="mini"
+                type="text"
+                @click="handleEdit(scope.row)"
+              >编辑</el-button>
+            </el-dropdown-item>
+            <el-dropdown-item>
+              <el-link
+                :href="MaxCloudUrl+'/vnc/host_vnc?type=node&uuid='+scope.row.uuid"
+                target="_blank"
+                size="mini"
+                icon="el-icon-connection"
+                :underline="false"
+              >Console</el-link>
+            </el-dropdown-item>
+          </el-dropdown-menu>
+        </el-dropdown>
       </template>
     </el-table-column>
   </el-table>
