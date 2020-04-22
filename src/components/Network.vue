@@ -137,8 +137,8 @@ export default {
                     self.tableData.splice(index, 1);
                     return true;
                   }
-                self.$message({message: "请求成功", type: "success"})
                 });
+                self.$message({message: "请求成功", type: "success"})
               } else {
                 self.$message({
                   message: data.RespHead.Message,
