@@ -47,7 +47,7 @@
         <IsoPool></IsoPool>
       </div>
       <div v-else-if="activeIndex === '5'">
-        场景
+        <Scene></Scene>
       </div>
       <div v-else-if="activeIndex === '8-1'">
         <AddNode></AddNode>
@@ -81,6 +81,7 @@ import Vm from "../components/Vm"
 import Firewall from "../components/Firewall"
 import Node from "../components/Node"
 import IsoPool from "../components/IsoPool"
+import Scene from "../components/Scene"
 import Network from "../components/Network"
 import AddFirewall from "../components/AddFirewall"
 import AddNetwork from "../components/AddNetwork"
@@ -101,6 +102,7 @@ export default {
     Firewall,
     Node,
     IsoPool,
+    Scene,
     Network,
     AddFirewall,
     AddNode,
