@@ -53,7 +53,6 @@
             <el-upload
               class="upload-demo"
               drag
-              ref="upload"
               :action="up_url"
               :on-success="handleAvatarSuccess"
               :on-error="handleAvatarError"
@@ -61,8 +60,7 @@
               :before-remove="before_remove"
               :limit="1"
               :on-exceed="handleExceed"
-              :data="form"
-              :auto-upload="false"
+              :auto-upload="true"
               :with-credentials="true"
             >
               <i class="el-icon-upload"></i>
@@ -120,7 +118,7 @@ export default {
       storage_pool: [],
       up_url: "",
       iso_list: "",
-      create: false,
+      create: true,
       form: {
         name: "",
         vir_type: "",
@@ -130,7 +128,9 @@ export default {
         login_pass: "",
         node_uuid: "",
         storage_pool_uuid: "",
-        desc: ""
+        desc: "",
+        file_name: "",
+        file_path: ""
       }
     };
   },
@@ -138,7 +138,7 @@ export default {
   mounted() {
     let self = this;
     self.MaxCloudUrl = self.GLOBAL.MaxCloudUrl;
-    self.up_url = self.MaxCloudUrl + "/vm_tpl/upload";
+    self.up_url = self.MaxCloudUrl + "/upload";
     axios
       .get(self.GLOBAL.MaxCloudUrl + "/node/list")
       .then(function(res) {
@@ -155,39 +155,75 @@ export default {
   },
 
   methods: {
+    query_task(uuid) {
+      let self = this;
+      axios
+        .get(self.GLOBAL.MaxCloudUrl + "/task?uuid=" + uuid)
+        .then(function(res) {
+          if (
+            res.data.RespBody.Result.status != "PENDING" &&
+            res.data.RespBody.Result.status != "DEFAULT"
+          ) {
+            if (res.data.RespBody.Result.status == "SUCCESS") {
+              self.$message({
+                message: res.data.RespBody.Result.message,
+                type: "success"
+              });
+            } else {
+              self.$message.error(res.data.RespBody.Result.message);
+            }
+          } else {
+            self.query_task(uuid);
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          self.$.message.error(error);
+        });
+    },
+
     onSubmit() {
-      if (
-        this.form.name &&
-        this.form.vir_type &&
-        this.form.type &&
-        this.form.os &&
-        this.form.login_user &&
-        this.form.login_pass &&
-        this.form.node_uuid &&
-        this.form.storage_pool_uuid &&
-        this.form.desc
-      ) {
-        this.$refs.upload.submit();
+      if (this.form.file_path && this.form.file_name) {
+        var post_data = this.form;
+        let self = this;
+        axios
+          .post(self.GLOBAL.MaxCloudUrl + "/vm_tpl/upload", post_data)
+          .then(function(res) {
+            var data = res.data;
+            if (
+              data.RespHead.ErrorCode == 0 &&
+              data.RespHead.Message == "SUCCESS"
+            ) {
+              self.query_task(data.RespBody.Result.task_id);
+              self.create = true;
+            } else {
+              self.$message({
+                message: data.RespHead.Message,
+                type: "warning"
+              });
+            }
+          })
+          .catch(function(error) {
+            // 请求失败处理
+            console.log(error);
+            self.$message.error("系统错误");
+          });
       } else {
-        this.$message.error("以上全为必填项");
+        this.$message.error("请先上传文件");
       }
     },
 
     handleAvatarSuccess(res, file) {
-      let self = this;
-      if (res.RespHead.ErrorCode == 0) {
-        self.$message({
-          message: res.RespHead.Message,
-          type: "success"
-        });
-        self.create = true;
-      } else {
-        self.$message.error(res.RespHead.Message);
+      // this.imageUrl = URL.createObjectURL(file.raw);
+      if (res.status) {
+        this.form.file_name = res.file_name;
+        this.form.file_path = res.file_path;
+        this.create = false;
       }
     },
 
     handleAvatarError() {
-      this.$message.error("镜像上传失败");
+      this.$message.error("模板上传失败");
     },
 
     handleExceed() {
@@ -218,12 +254,12 @@ export default {
       let self = this;
       $.each(self.nodes, function(index, node) {
         if (node && node["uuid"] == uuid) {
-          self.up_url =
-            "http://" +
-            node["host"] +
-            ":" +
-            self.GLOBAL.MaxCloudPort +
-            "/vm_tpl/upload";
+          // self.up_url =
+          //   "http://" +
+          //   node["host"] +
+          //   ":" +
+          //   self.GLOBAL.MaxCloudPort +
+          //   "/vm_tpl/upload";
 
           self.storage_pool = [];
           axios
