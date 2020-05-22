@@ -916,7 +916,7 @@ export default {
     submitEdit(done) {
       let self = this;
       axios
-        .post(self.GLOBAL.MaxCloudUrl + "/vm/edit1", self.editform)
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/edit", self.editform)
         .then(function(res) {
           var data = res.data;
           if (
