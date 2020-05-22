@@ -255,6 +255,14 @@
               </el-dropdown-item>
               <el-dropdown-item>
                 <el-button
+                  icon="el-icon-refresh"
+                  size="mini"
+                  type="text"
+                  @click="reset_vm(scope.row.uuid)"
+                >配置生效(实例会重启)</el-button>
+              </el-dropdown-item>
+              <el-dropdown-item>
+                <el-button
                   icon="el-icon-upload2"
                   size="mini"
                   type="text"
@@ -287,15 +295,41 @@
     >
       <div class="demo-drawer__content">
         <el-form :model="editform">
-          <el-form-item label="活动名称" :label-width="formLabelWidth">
+          <el-form-item label="虚拟机名称" :label-width="formLabelWidth">
             <el-input v-model="editform.name" autocomplete="off"></el-input>
           </el-form-item>
-          <el-form-item label="活动区域" :label-width="formLabelWidth">
-            <el-select v-model="editform.region" placeholder="请选择活动区域">
-              <el-option label="区域一" value="shanghai"></el-option>
-              <el-option label="区域二" value="beijing"></el-option>
-            </el-select>
+          <el-form-item label="描述" :label-width="formLabelWidth">
+            <el-input v-model="editform.desc" autocomplete="off"></el-input>
           </el-form-item>
+          <el-form-item label="系统登录用户" :label-width="formLabelWidth">
+            <el-input v-model="editform.login_user" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="系统登录密码" :label-width="formLabelWidth">
+            <el-input v-model="editform.login_pass" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="vnc密码" :label-width="formLabelWidth">
+            <el-input v-model="editform.vnc_pass" autocomplete="off"></el-input>
+          </el-form-item>
+          <el-form-item label="cpu" :label-width="formLabelWidth">
+          <el-select v-model="editform.cpu" placeholder="请选择cpu数量">
+            <el-option label="1" value="1"></el-option>
+            <el-option label="2" value="2"></el-option>
+            <el-option label="4" value="4"></el-option>
+            <el-option label="8" value="8"></el-option>
+            <el-option label="16" value="16"></el-option>
+            <el-option label="32" value="32"></el-option>
+          </el-select>
+        </el-form-item>
+        <el-form-item label="内存" :label-width="formLabelWidth">
+          <el-select v-model="editform.memory" placeholder="请选择内存大小">
+            <el-option label="1" value="1048576"></el-option>
+            <el-option label="2" value="2097152"></el-option>
+            <el-option label="4" value="4194304"></el-option>
+            <el-option label="8" value="8388608"></el-option>
+            <el-option label="16" value="16777216"></el-option>
+            <el-option label="32" value="33554432"></el-option>
+          </el-select>
+        </el-form-item>
         </el-form>
         <div class="demo-drawer__footer">
           <el-button @click="cancelForm">取 消</el-button>
@@ -620,14 +654,14 @@ export default {
       timer: null,
       formLabelWidth: "80px",
       editform: {
+        vm_uuid: "",
         name: "",
-        region: "",
-        date1: "",
-        date2: "",
-        delivery: false,
-        type: [],
-        resource: "",
-        desc: ""
+        desc: "",
+        login_user: "",
+        login_pass: "",
+        vnc_pass: "",
+        cpu: "",
+        memory: ""
       }
     };
   },
@@ -867,14 +901,45 @@ export default {
 
     handleEdit(data) {
       this.handleEditDis = true;
+      this.editform =  {
+        vm_uuid: data.uuid,
+        name: data.name,
+        desc: data.desc,
+        login_user: data.login_user,
+        login_pass: data.login_pass,
+        vnc_pass: data.vnc_pass,
+        cpu: data.cpu,
+        memory: data.memory
+      }
     },
 
-    submitEdit() {
-      this.error_messages = "功能正在开发中";
-      return false;
+    submitEdit(done) {
+      let self = this;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/edit1", self.editform)
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            done();
+          } else {
+             self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
     },
 
     handleClose(done) {
+      let self = this;
       if (this.editloading) {
         return;
       }
@@ -882,14 +947,10 @@ export default {
         .then(_ => {
           this.editloading = true;
           this.timer = setTimeout(() => {
-            if (this.submitEdit()) {
-              done();
-            } else {
-              this.$message(this.error_messages);
-            }
+            self.submitEdit(done);
             // 动画关闭需要一定的时间
             setTimeout(() => {
-              this.editloading = false;
+              self.editloading = false;
             }, 400);
           }, 2000);
         })
@@ -899,6 +960,32 @@ export default {
     up_tpl(vm_uuid){
       this.uptpldialogFormVisible=true;
       this.up_tpl_data.vm_uuid = vm_uuid;
+    },
+
+    reset_vm(vm_uuid){
+      let self = this;
+      axios
+        .post(self.GLOBAL.MaxCloudUrl + "/vm/reset", {"vm_uuid": vm_uuid})
+        .then(function(res) {
+          var data = res.data;
+          if (
+            data.RespHead.ErrorCode == 0 &&
+            data.RespHead.Message == "SUCCESS"
+          ) {
+            self.uptpldialogFormVisible=false;
+            self.query_task(data.RespBody.Result.task_id);
+          } else {
+            self.$message({
+              message: data.RespHead.Message,
+              type: "warning"
+            });
+          }
+        })
+        .catch(function(error) {
+          // 请求失败处理
+          console.log(error);
+          self.$message.error("系统错误");
+        });
     },
 
     btn_up_tpl(){
